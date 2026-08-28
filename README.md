@@ -1,6 +1,27 @@
 # Image Studio [![LINUX DO](https://img.shields.io/badge/LINUX%20DO-%E7%A4%BE%E5%8C%BA%E8%AE%A4%E5%8F%AF-FFB003?style=for-the-badge&logo=discourse&logoColor=white)](https://linux.do/)
 
-Image Studio 是一个依赖极少的本地 / 自托管 Web 工作站，用于管理 OpenAI-compatible 图片生成与对话接口、提交图片生成任务、管理用户额度和本地图库。当前实现基于 Node.js 原生 HTTP、SQLite、浏览器端 ES Modules 与本地文件存储，默认运行在 `http://localhost:8787`。
+**Self-hosted OpenAI-compatible image generation workbench.**
+
+Image Studio 是一个面向个人和小团队的本地 / 自托管 AI 图片生成工作站，支持统一管理图片生成与对话接口、异步任务队列、图库、Prompt 工作流，以及漫画和视频生成流程。
+
+## Highlights
+
+- OpenAI-compatible 图片生成与对话接口管理
+- SQLite 持久化任务队列 + SSE 实时进度
+- 任务取消、重试、优先级和并发控制
+- 用户、管理员、额度、注册策略和公开图库
+- Prompt Builder、Prompt 历史、漫画分镜和视频工作流
+- CSRF、SSRF、路径防护、限流和 API Key 加密
+- Docker 部署、健康检查、Node.js 测试和浏览器 E2E 测试
+
+## Tech Stack
+
+- Node.js 22+
+- SQLite / WAL
+- Browser ES Modules
+- Server-Sent Events（SSE）
+- Docker / Docker Compose
+- Node.js native test runner
 
 当前产品说明见 [`docs/PRODUCT_CURRENT.md`](docs/PRODUCT_CURRENT.md)，未来商业化演进方案见 [`docs/PRODUCT_ROADMAP.md`](docs/PRODUCT_ROADMAP.md)；生产部署、反向代理、备份恢复和容量规划见 [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)；系统默认 API Key 的当前存储决策见 [`docs/API_KEY_STORAGE_DECISION.md`](docs/API_KEY_STORAGE_DECISION.md)。
 
