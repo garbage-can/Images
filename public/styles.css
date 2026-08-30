@@ -108,6 +108,7 @@ html.auth-pending[data-auth-state="error"] body::before {
 
 body.auth-body {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -203,6 +204,7 @@ body.auth-body {
 html, body {
   margin: 0;
   padding: 0;
+  min-width: 0;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-ui);
@@ -673,6 +675,7 @@ body.job-queue-visible .shell.app-layout,
 .tab-panel.active { display: block; }
 
 .panel {
+  min-width: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
@@ -709,11 +712,158 @@ body.job-queue-visible .shell.app-layout,
    响应式
    ============================================================ */
 
-@media (max-width: 720px) {
-  .topbar { padding: 8px 12px; gap: 10px; }
+@media (max-width: 980px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px 10px;
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+  .shell {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+  .brand,
+  .topbar-right,
+  .top-menu {
+    min-width: 0;
+  }
   .brand-sub { display: none; }
-  .shell { padding: 16px 12px 40px; }
-  .panel { padding: 18px; }
-  .top-menu { gap: 2px; overflow-x: auto; }
-  .tab-button { padding: 6px 10px; font-size: 13px; }
+  .top-menu {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    margin: 0;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .top-menu::-webkit-scrollbar { display: none; }
+  .tab-button {
+    flex: 0 0 auto;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+  .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .topbar .status-chip {
+    max-width: min(180px, 30vw);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .job-queue-mobile-button {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    min-height: 44px;
+  }
+  .job-queue-head .small,
+  .job-card-actions .small {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 7px 10px;
+  }
+  .auth-card input,
+  .auth-card .primary { min-height: 44px; }
+  .auth-card input { font-size: 16px; }
+}
+
+@media (max-width: 720px) {
+  html,
+  body { max-width: 100%; }
+  body { overflow-x: clip; }
+  .topbar {
+    gap: 4px 8px;
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(10px, env(safe-area-inset-right))
+      6px
+      max(10px, env(safe-area-inset-left));
+  }
+  .brand {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .brand-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .topbar-right { gap: 6px; }
+  .topbar-right > a.icon-button { display: none; }
+  .topbar .status-chip {
+    max-width: 72px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .top-menu {
+    width: auto;
+    margin-inline:
+      calc(0px - max(10px, env(safe-area-inset-left)))
+      calc(0px - max(10px, env(safe-area-inset-right)));
+    padding-inline:
+      max(10px, env(safe-area-inset-left))
+      max(10px, env(safe-area-inset-right));
+    scroll-padding-inline: max(10px, env(safe-area-inset-left));
+    gap: 2px;
+  }
+  .tab-button {
+    min-height: 44px;
+    padding: 7px 12px;
+    font-size: 13px;
+    scroll-snap-align: center;
+  }
+  .icon-button {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+  }
+  .shell {
+    width: 100%;
+    padding:
+      12px
+      max(10px, env(safe-area-inset-right))
+      calc(48px + env(safe-area-inset-bottom))
+      max(10px, env(safe-area-inset-left));
+  }
+  .shell.app-layout:has(#usersPanel.active) { max-width: none; }
+  .panel { padding: 14px; }
+  .panel-head {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .panel-head > * { min-width: 0; }
+  .panel-head h2 { font-size: 18px; }
+  .job-queue-mobile-button {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    min-height: 44px;
+  }
+  body.job-queue-open { overflow: hidden; }
+  body.auth-body {
+    padding:
+      max(16px, env(safe-area-inset-top))
+      max(16px, env(safe-area-inset-right))
+      max(16px, env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
+  }
+  .auth-card { padding: 26px 22px; }
+  .auth-card input,
+  .auth-card .primary {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .auth-switch button {
+    min-height: 44px;
+    padding-inline: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .panel { padding: 12px; }
 }

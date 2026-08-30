@@ -125,7 +125,8 @@ select::-ms-expand { display: none; }
 }
 
 select.select-native-hidden {
-  position: absolute !important;
+  position: fixed !important;
+  inset: 0 auto auto 0 !important;
   width: 1px !important;
   height: 1px !important;
   min-width: 0 !important;
@@ -340,3 +341,40 @@ select.select-native-hidden {
 }
 .usage-row span { color: var(--text-muted); }
 .usage-row strong { color: var(--text); }
+
+@media (max-width: 980px) {
+  .user-menu-trigger { min-height: 44px; }
+  .user-menu-dropdown button,
+  .custom-select-option { min-height: 44px; }
+}
+
+@media (max-width: 720px) {
+  .user-menu-trigger .user-name,
+  .user-menu-trigger .user-caret {
+    display: none;
+  }
+  .user-menu-trigger {
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+    padding: 3px;
+  }
+  .user-menu-trigger .user-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  .user-menu-dropdown {
+    position: fixed;
+    top: calc(max(8px, env(safe-area-inset-top)) + 52px);
+    right: max(10px, env(safe-area-inset-right));
+    width: min(220px, calc(100vw - 20px));
+  }
+  .user-menu-dropdown button,
+  .custom-select-option {
+    min-height: 44px;
+  }
+  .custom-select-menu {
+    max-width: calc(100vw - 20px);
+    max-height: min(320px, 46dvh);
+  }
+}

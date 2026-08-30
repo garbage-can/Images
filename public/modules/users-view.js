@@ -46,7 +46,7 @@ export function renderUserRow(user = {}, { currentUserId = '' } = {}) {
     <td>${escapeHtml(user.username || '-')}${isSelf ? ` <span class="chip info">${escapeHtml(t('admin.users.self.badge'))}</span>` : ''}</td>
     <td>${escapeHtml(user.email || '-')}</td>
     <td>
-      <select class="users-role-select"${selfTip}>${roleOptions}</select>
+      <select class="users-role-select" data-native-select="true"${selfTip}>${roleOptions}</select>
     </td>
     <td>
       <span class="chip ${user.status === 'active' ? 'ok' : 'err'}">${escapeHtml(statusLabel(user.status))}</span>

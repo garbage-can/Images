@@ -17,11 +17,21 @@ function createClassList(initial = []) {
 }
 
 function makeElement({ id = '', dataset = {}, classes = [], hidden = false } = {}) {
+  const attributes = new Map();
   return {
     id,
     dataset,
     hidden,
-    classList: createClassList(classes)
+    classList: createClassList(classes),
+    setAttribute(name, value) {
+      attributes.set(name, String(value));
+    },
+    removeAttribute(name) {
+      attributes.delete(name);
+    },
+    getAttribute(name) {
+      return attributes.get(name) ?? null;
+    }
   };
 }
 
@@ -80,6 +90,8 @@ test('switchTab activates comic tab discovered from DOM panels', async (t) => {
   assert.equal(studioPanel.classList.contains('active'), false);
   assert.equal(comicButton.classList.contains('active'), true);
   assert.equal(studioButton.classList.contains('active'), false);
+  assert.equal(comicButton.getAttribute('aria-current'), 'page');
+  assert.equal(studioButton.getAttribute('aria-current'), null);
   assert.equal(storage.get('image-studio.activeTab'), 'comicPanel');
   assert.deepEqual(events.at(-1)?.detail, { tabId: 'comicPanel' });
 });

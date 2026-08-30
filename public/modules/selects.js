@@ -10,11 +10,20 @@ let mounted = false;
 let nativeSettersPatched = false;
 let selectUid = 0;
 
+function prefersNativeTouchSelect() {
+  try {
+    return Boolean(globalThis.matchMedia?.('(hover: none) and (pointer: coarse)')?.matches);
+  } catch {
+    return false;
+  }
+}
+
 function isEnhanceable(select) {
   if (!(select instanceof HTMLSelectElement)) return false;
   if (select.multiple) return false;
   const size = Number(select.getAttribute('size') || 1);
   if (size > 1) return false;
+  if (select.dataset.customSelect !== 'true' && prefersNativeTouchSelect()) return false;
   return select.dataset.nativeSelect !== 'true';
 }
 

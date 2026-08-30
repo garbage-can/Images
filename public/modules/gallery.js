@@ -30,6 +30,7 @@ let activeComicProject = null;
 let videoProjects = [];
 let activeVideoProject = null;
 let mounted = false;
+let galleryRefreshSequence = 0;
 
 let previewIndex = -1;
 const previewController = createImagePreviewController({
@@ -229,16 +230,20 @@ function renderGallery() {
 export async function refreshGalleryPanel({ silent = false } = {}) {
   if (!mounted) return;
   const list = $('savedGallery');
+  const requestScope = galleryScope;
+  const requestSequence = ++galleryRefreshSequence;
+  const isStale = () => requestSequence !== galleryRefreshSequence || requestScope !== galleryScope;
   try {
     if (!silent) {
       hideGallerySummary();
       list.dataset.empty = 'true';
-      list.innerHTML = galleryLoadingHtml(galleryScope);
+      list.innerHTML = galleryLoadingHtml(requestScope);
     }
 
-    if (galleryScope === 'comic') {
+    if (requestScope === 'comic') {
       const resp = await apiFetch('/api/comic-projects?limit=500', { headers: { accept: 'application/json' } });
       const data = await resp.json().catch(() => ({}));
+      if (isStale()) return;
       if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
       comicProjects = Array.isArray(data.items) ? data.items : [];
       galleryCounts = { ...galleryCounts, comicProjects: Number(data.count ?? comicProjects.length) || 0 };
@@ -251,9 +256,10 @@ export async function refreshGalleryPanel({ silent = false } = {}) {
       return;
     }
 
-    if (galleryScope === 'video') {
+    if (requestScope === 'video') {
       const resp = await apiFetch('/api/video-projects?limit=500', { headers: { accept: 'application/json' } });
       const data = await resp.json().catch(() => ({}));
+      if (isStale()) return;
       if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
       videoProjects = Array.isArray(data.items) ? data.items : [];
       galleryCounts = { ...galleryCounts, videoProjects: Number(data.count ?? videoProjects.length) || 0 };
@@ -266,9 +272,10 @@ export async function refreshGalleryPanel({ silent = false } = {}) {
       return;
     }
 
-    const params = new URLSearchParams({ limit: '500', scope: galleryScope });
+    const params = new URLSearchParams({ limit: '500', scope: requestScope });
     const resp = await apiFetch(`/api/gallery?${params}`, { headers: { accept: 'application/json' } });
     const data = await resp.json().catch(() => ({}));
+    if (isStale()) return;
     if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
 
     galleryItems = Array.isArray(data.items) ? data.items : [];
@@ -276,11 +283,12 @@ export async function refreshGalleryPanel({ silent = false } = {}) {
     renderGallery();
     if (!silent) setStatus('图库已刷新', 'ok', 1200);
   } catch (err) {
+    if (isStale()) return;
     const message = err.message || String(err);
     hideGallerySummary();
     list.dataset.empty = 'true';
-    list.innerHTML = galleryErrorHtml(galleryScope, message);
-    setStatus(`${galleryScope === 'comic' ? '漫画项目' : (galleryScope === 'video' ? '视频项目' : '图库')}加载失败`, 'err', 1800);
+    list.innerHTML = galleryErrorHtml(requestScope, message);
+    setStatus(`${requestScope === 'comic' ? '漫画项目' : (requestScope === 'video' ? '视频项目' : '图库')}加载失败`, 'err', 1800);
   }
 }
 

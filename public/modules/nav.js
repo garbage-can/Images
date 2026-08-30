@@ -12,13 +12,36 @@ function availableTabIds() {
   return ids.length ? ids : FALLBACK_TAB_IDS;
 }
 
+function revealActiveTab(button) {
+  const menu = button?.closest?.('.top-menu');
+  if (!menu || menu.scrollWidth <= menu.clientWidth) return;
+  const reducedMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  button.scrollIntoView?.({
+    block: 'nearest',
+    inline: 'center',
+    behavior: reducedMotion ? 'auto' : 'smooth'
+  });
+}
+
 export function switchTab(tabId) {
   if (!availableTabIds().includes(tabId)) tabId = 'studioPanel';
   const targetPanel = $(tabId);
   if (!targetPanel || targetPanel.hidden) tabId = 'studioPanel';
-  $$('.tab-button').forEach((btn) => btn.classList.toggle('active', btn.dataset.tab === tabId));
+  let activeButton = null;
+  $$('.tab-button').forEach((btn) => {
+    const active = btn.dataset.tab === tabId;
+    btn.classList.toggle('active', active);
+    if (active) {
+      activeButton = btn;
+      btn.setAttribute?.('aria-current', 'page');
+    } else {
+      btn.removeAttribute?.('aria-current');
+    }
+  });
   $$('.tab-panel').forEach((panel) => panel.classList.toggle('active', panel.id === tabId));
   writeString(KEYS.activeTab, tabId);
+  globalThis.window?.scrollTo?.({ top: 0, left: 0, behavior: 'auto' });
+  revealActiveTab(activeButton);
   document.dispatchEvent(new CustomEvent('app-tab-changed', { detail: { tabId } }));
 }
 

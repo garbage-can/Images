@@ -45,7 +45,7 @@ test('users view renders rows with escaped dynamic fields and self controls disa
   assert.match(html, /&lt;b&gt;alice&lt;\/b&gt;/);
   assert.match(html, /a@example\.test&quot;&gt;&lt;img&gt;/);
   assert.match(html, /<span class="chip info">你<\/span>/);
-  assert.match(html, /users-role-select" title="不能修改自己" disabled/);
+  assert.match(html, /users-role-select" data-native-select="true" title="不能修改自己" disabled/);
   assert.match(html, /users-status-btn" title="不能修改自己" disabled/);
   assert.doesNotMatch(html, /<b>alice<\/b>/);
 });
@@ -58,6 +58,7 @@ test('users view renders table empty state and populated rows', () => {
     { id: 'u1', username: 'Alice', email: 'a@example.test', role: 'user', status: 'disabled' }
   ]);
   assert.match(html, /<table class="users-table">/);
+  assert.match(html, /users-role-select" data-native-select="true"/);
   assert.match(html, /Alice/);
   assert.match(html, /普通用户/);
   assert.match(html, /停用/);

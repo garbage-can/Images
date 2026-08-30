@@ -133,7 +133,15 @@
 }
 .profile-item:hover { border-color: var(--border-strong); }
 .profile-item.active { border-color: var(--brand); background: var(--brand-soft); }
-.profile-item strong { display: block; font-size: 13px; }
+.profile-item strong {
+  min-width: 0;
+  max-width: 100%;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
 .profile-item small { display: block; color: var(--text-faint); font-size: 11.5px; margin-top: 2px; }
 
 .badge {
@@ -196,4 +204,48 @@
 @media (max-width: 720px) {
   .form-grid { grid-template-columns: 1fr; }
   .form-grid .span-2 { grid-column: span 1; }
+  .profile-list-panel,
+  .summary-panel,
+  .system-default-panel {
+    padding: 12px;
+  }
+  .system-default-card,
+  .config-section { padding: 10px; }
+  .system-default-grid {
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, .7fr) auto;
+    gap: 6px;
+  }
+  .system-default-grid strong,
+  .system-default-grid em {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .system-default-actions {
+    width: 100%;
+    align-items: stretch;
+  }
+  .system-default-actions > * {
+    min-height: 44px;
+  }
+  .system-default-actions > button { width: 100%; }
+  .switch-row {
+    min-height: 44px;
+    padding: 7px 8px;
+  }
+  .profile-item { min-height: 44px; }
+  #configPanel .profile-form > .action-row > button {
+    min-height: 44px;
+    flex: 1 1 calc(50% - 4px);
+  }
+  .summary-grid > div {
+    min-width: 0;
+    gap: 10px;
+  }
+  .summary-grid strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    text-align: right;
+  }
 }

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { setCurrentUser } from '../public/modules/auth.js';
 import {
   KEYS,
+  removeKey,
   readString,
   readStringScoped,
   writeString,
@@ -55,4 +56,22 @@ test('scoped localStorage keys migrate legacy per-user data', (t) => {
   writeStringScoped(KEYS.promptDraft, 'new prompt');
   assert.equal(store.get('image-studio.promptDraft:user-1'), 'new prompt');
   assert.equal(store.has('image-key-manager.promptDraft:user-1'), false);
+});
+
+test('string storage helpers degrade safely when localStorage is unavailable', (t) => {
+  const oldWarn = console.warn;
+  globalThis.localStorage = {
+    getItem() { throw new Error('storage blocked'); },
+    setItem() { throw new Error('storage blocked'); },
+    removeItem() { throw new Error('storage blocked'); }
+  };
+  console.warn = () => {};
+  t.after(() => {
+    delete globalThis.localStorage;
+    console.warn = oldWarn;
+  });
+
+  assert.equal(readString(KEYS.theme, 'system'), 'system');
+  assert.doesNotThrow(() => writeString(KEYS.theme, 'dark'));
+  assert.doesNotThrow(() => removeKey(KEYS.theme));
 });

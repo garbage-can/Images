@@ -714,6 +714,11 @@ export function mountStudioPanel({ onSavedImages } = {}) {
   document.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape') closePreviewModal();
     if ((ev.metaKey || ev.ctrlKey) && ev.key === 'Enter') {
+      const studioActive = $('studioPanel')?.classList.contains('active');
+      const overlayOpen = Boolean(document.querySelector('dialog[open]'))
+        || document.body.classList.contains('drawer-open')
+        || document.body.classList.contains('preview-open');
+      if (!studioActive || overlayOpen || ev.isComposing || ev.repeat || $('generate')?.disabled) return;
       ev.preventDefault();
       generate({ onSavedImages });
     }

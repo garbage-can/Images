@@ -78,17 +78,29 @@ export function writeJson(key, value) {
 }
 
 export function readString(key, fallback = '') {
-  return readRawWithLegacyMigration(key) ?? fallback;
+  try {
+    return readRawWithLegacyMigration(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 export function writeString(key, value) {
-  localStorage.setItem(key, value ?? '');
-  removeLegacyKey(key);
+  try {
+    localStorage.setItem(key, value ?? '');
+    removeLegacyKey(key);
+  } catch (err) {
+    console.warn('localStorage write failed', err);
+  }
 }
 
 export function removeKey(key) {
-  localStorage.removeItem?.(key);
-  removeLegacyKey(key);
+  try {
+    localStorage.removeItem?.(key);
+    removeLegacyKey(key);
+  } catch (err) {
+    console.warn('localStorage remove failed', err);
+  }
 }
 
 export function readJsonScoped(baseKey, fallback) {

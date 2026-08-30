@@ -282,6 +282,8 @@ function bindQueueEvents() {
     mobileBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
   });
   document.addEventListener('app-tab-changed', (ev) => {
+    document.body.classList.remove('job-queue-open');
+    mobileBtn?.setAttribute('aria-expanded', 'false');
     currentTabId = ev.detail?.tabId || 'studioPanel';
     updateQueueVisibility();
   });

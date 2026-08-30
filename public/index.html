@@ -2,19 +2,19 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>图像工作台 · BYOK 在线生图</title>
   <meta name="color-scheme" content="light dark" />
   <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="./styles.css?v=c5902f1-comic-style-menu" />
-  <link rel="stylesheet" href="./studio.css?v=studio-split-20260610" />
-  <link rel="stylesheet" href="./shell.css?v=shell-split-20260610" />
-  <link rel="stylesheet" href="./gallery.css?v=gallery-split-20260610" />
-  <link rel="stylesheet" href="./profiles.css?v=profiles-split-20260610" />
-  <link rel="stylesheet" href="./prompts.css?v=prompts-split-20260610" />
-  <link rel="stylesheet" href="./logs.css?v=logs-split-20260610" />
-  <link rel="stylesheet" href="./comic.css?v=video-layered-between-20260614" />
-  <link rel="stylesheet" href="./admin.css?v=admin-split-20260608" />
+  <link rel="stylesheet" href="./styles.css?v=mobile-layout-20260830" />
+  <link rel="stylesheet" href="./studio.css?v=mobile-layout-20260830" />
+  <link rel="stylesheet" href="./shell.css?v=mobile-layout-20260830" />
+  <link rel="stylesheet" href="./gallery.css?v=mobile-layout-20260830" />
+  <link rel="stylesheet" href="./profiles.css?v=mobile-layout-20260830" />
+  <link rel="stylesheet" href="./prompts.css?v=mobile-layout-20260830" />
+  <link rel="stylesheet" href="./logs.css?v=mobile-layout-20260830" />
+  <link rel="stylesheet" href="./comic.css?v=mobile-layout-20260830" />
+  <link rel="stylesheet" href="./admin.css?v=mobile-layout-20260830" />
   <script src="./main-boot.js?v=csp-external-20260609"></script>
 </head>
 <body>
@@ -54,7 +54,7 @@
             8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
         </svg>
       </a>
-      <span class="status-chip" id="status" data-state="ready">就绪</span>
+      <span class="status-chip" id="status" data-state="ready" role="status" aria-live="polite" aria-atomic="true">就绪</span>
       <div id="userMenu" class="user-menu"></div>
       <button class="icon-button" id="themeToggle" title="切换主题" aria-label="切换主题">
         <span class="theme-icon" data-theme-icon>◐</span>
@@ -1211,6 +1211,6 @@
     </section>
   </aside>
 
-  <script type="module" src="./app.js?v=video-layered-between-20260614"></script>
+  <script type="module" src="./app.js?v=mobile-interactions-20260830"></script>
 </body>
 </html>

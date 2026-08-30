@@ -519,17 +519,69 @@
 
 @media (max-width: 720px) {
   .prompt-manager-head { align-items: flex-start; }
-  .prompt-tabs { width: 100%; overflow-x: auto; border-radius: var(--radius-btn); }
-  .prompt-tab { white-space: nowrap; }
+  .prompt-tabs {
+    width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    border-radius: var(--radius-btn);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .prompt-tabs::-webkit-scrollbar { display: none; }
+  .prompt-tab {
+    min-height: 44px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
   .prompt-builder-grid { grid-template-columns: 1fr; }
+  .prompt-builder-form,
+  .prompt-preview-pane { padding: 12px; }
+  .prompt-section-head > button,
+  .prompt-chip {
+    min-height: 44px;
+  }
   .prompt-preview-pane { position: static; }
   .prompt-form-grid { grid-template-columns: 1fr; }
   .prompt-form-grid .span-2 { grid-column: span 1; }
-  .prompt-history-toolbar { align-items: stretch; flex-direction: column; }
+  #promptComposedOutput {
+    min-height: 220px;
+    font-size: 16px;
+  }
+  .prompt-action-row > button {
+    min-height: 44px;
+    flex: 1 1 calc(50% - 4px);
+  }
+  .prompt-history-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 12px;
+  }
+  .prompt-history-filters,
+  .prompt-history-actions { width: 100%; }
+  .prompt-history-filters .inline-label { flex: 1 1 100%; }
+  .prompt-history-actions > button {
+    min-height: 44px;
+    flex: 1 1 calc(50% - 4px);
+  }
+  .prompt-history-list,
+  .prompt-square-list {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
   .prompt-history-item { grid-template-columns: 1fr; }
   .prompt-history-buttons { justify-content: flex-start; }
+  .prompt-history-buttons button {
+    min-height: 40px;
+    flex: 1 1 calc(50% - 3px);
+  }
   .prompt-square-hero { align-items: flex-start; flex-direction: column; }
-  .prompt-square-periods { justify-content: flex-start; }
+  .prompt-square-periods {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .prompt-square-period,
+  .prompt-square-tag { min-height: 40px; }
   .prompt-square-card { grid-template-columns: 1fr; }
   .prompt-square-rank { width: auto; height: 34px; justify-content: flex-start; padding: 0 12px; }
   .prompt-square-rank,
@@ -540,5 +592,11 @@
     grid-column: auto;
     grid-row: auto;
   }
-  .prompt-square-preview { width: 100%; height: 180px; }
+  .prompt-square-preview {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    aspect-ratio: 4 / 3;
+  }
 }

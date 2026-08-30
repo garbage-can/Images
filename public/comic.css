@@ -605,9 +605,39 @@ dialog.app-dialog.video-prompt-dialog {
 }
 
 @media (max-width: 720px) {
+  .comic-step-card { padding: 12px; }
+  .checkbox-field .inline-check { min-height: 44px; }
+  .comic-step-head > div { min-width: 0; }
+  .comic-style-menu .comic-style-grid,
+  .comic-panel-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .comic-options,
   .comic-panel-card dl,
   .comic-page-editor-grid {
     grid-template-columns: 1fr;
+  }
+  #comicPanel input,
+  #comicPanel select,
+  #comicPanel textarea,
+  #videoPanel input,
+  #videoPanel select,
+  #videoPanel textarea,
+  dialog.app-dialog.video-prompt-dialog .app-dialog-form textarea {
+    font-size: 16px;
+  }
+  #comicPanel .action-row > button,
+  #videoPanel .action-row > button,
+  .comic-result-actions > a,
+  .video-between-refine-grid > button {
+    min-height: 44px;
+  }
+  #comicPanel .action-row > button,
+  #videoPanel .action-row > button {
+    flex: 1 1 calc(50% - 4px);
+  }
+  .video-between-segment { grid-column: auto; }
+  .video-between-header {
+    flex-direction: column;
   }
 }
