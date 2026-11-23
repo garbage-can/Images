@@ -41,7 +41,7 @@ test('entry HTML loads split CSS bundles in dependency order', () => {
   const links = [...html.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/g)]
     .map((match) => match[1].replace(/[?#].*$/, ''));
 
-  assert.deepEqual(links, ['./styles.css', './studio.css', './shell.css', './gallery.css', './profiles.css', './prompts.css', './logs.css', './admin.css']);
+  assert.deepEqual(links, ['./styles.css', './studio.css', './shell.css', './gallery.css', './profiles.css', './prompts.css', './logs.css', './admin.css', './usage.css']);
   for (const href of links) {
     assert.equal(existsSync(join('public', href.slice(2))), true, `missing ${href}`);
   }
@@ -59,7 +59,8 @@ test('top-level navigation tabs have matching tab panels', () => {
     'galleryPanel',
     'configPanel',
     'logsPanel',
-    'usersPanel'
+    'usersPanel',
+    'usagePanel'
   ]);
 
   for (const id of tabTargets) {
@@ -110,6 +111,8 @@ test('literal frontend DOM id references resolve to static or generated markup',
       'state.js',
       'studio.js',
       'theme.js',
+
+      'usage.js',
       'users.js',
       'volatile-secrets.js'
     ].map((name) => `${MODULE_DIR}/${name}`)

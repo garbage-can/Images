@@ -12,6 +12,7 @@ import { switchTab } from './modules/nav.js';
 import { getMe, setCurrentUser } from './modules/auth.js';
 import { mountProfileMenu } from './modules/profile.js';
 import { mountUsersPanel } from './modules/users.js';
+import { mountUsagePanel } from './modules/usage.js?v=corp-20261123b';
 import { mountSelectEnhancer } from './modules/selects.js';
 import { mountJobQueue } from './modules/jobs.js';
 
@@ -59,6 +60,7 @@ async function main() {
 
   if (me.role === 'admin') {
     mountUsersPanel();
+    mountUsagePanel();
   }
 
   mountSelectEnhancer();

@@ -3,7 +3,7 @@
 import { $, $$ } from './dom.js';
 import { KEYS, readString, writeString } from './state.js';
 
-const FALLBACK_TAB_IDS = ['studioPanel', 'promptPanel', 'galleryPanel', 'configPanel', 'logsPanel', 'usersPanel'];
+const FALLBACK_TAB_IDS = ['studioPanel', 'promptPanel', 'galleryPanel', 'configPanel', 'logsPanel', 'usersPanel', 'usagePanel'];
 
 function availableTabIds() {
   const ids = $$('.tab-panel')
