@@ -1209,3 +1209,6 @@ progress.quota-mini.high::-moz-progress-bar { background: var(--danger); }
   .app-dialog-actions { flex-wrap: wrap; }
   .app-dialog-actions button { flex-basis: 100%; }
 }
+
+.management-tab.usage-link { margin-left: auto; text-decoration: none; }
+

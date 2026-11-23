@@ -867,3 +867,8 @@ body.job-queue-visible .shell.app-layout,
 @media (max-width: 360px) {
   .panel { padding: 12px; }
 }
+
+.auth-sso { margin-top: 16px; display: grid; gap: 8px; }
+.btn-sso { display: block; text-align: center; padding: 11px 14px; border-radius: 10px; background: #4f6ef7; color: #fff; font-weight: 600; text-decoration: none; }
+.btn-sso:hover { filter: brightness(1.06); }
+.auth-hint { margin: 0; color: #6b7688; font-size: 12.5px; }

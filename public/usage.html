@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>用量看板 · 图像工作台</title>
+  <link rel="icon" href="./favicon.svg" />
+  <link rel="stylesheet" href="./usage.css?v=3" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="page-head">
+      <h1>用量看板</h1>
+      <span class="sub" id="windowLabel">最近 5 小时</span>
+      <span class="spacer"></span>
+      <button class="btn active" data-hours="5" type="button">5 小时</button>
+      <button class="btn" data-hours="24" type="button">24 小时</button>
+      <button class="btn" data-hours="72" type="button">3 天</button>
+      <button class="btn" id="refresh" type="button">刷新</button>
+      <a class="btn" href="/">返回工作台</a>
+    </header>
+
+    <div class="grid kpis" id="kpis"></div>
+
+    <section class="card">
+      <div class="card-head">
+        <strong>按小时请求量</strong>
+        <span class="sub" id="chartHint"></span>
+      </div>
+      <div class="chart" id="chart"></div>
+      <div class="axis" id="axis"></div>
+      <div class="legend">
+        <span><i class="dot ok"></i>成功</span>
+        <span><i class="dot cancelled"></i>取消</span>
+        <span><i class="dot failed"></i>失败</span>
+      </div>
+    </section>
+
+    <div class="row2 mt">
+      <section class="card">
+        <strong>账号分布</strong>
+        <div id="accounts" class="cell-card"></div>
+      </section>
+      <section class="card">
+        <strong>Codex 额度窗口</strong>
+        <div id="codex" class="cell-card"></div>
+        <p class="sub">ChatGPT 生图接口不回传 5 小时用量，百分比仅作限额指示；真实消耗看左侧请求数。</p>
+      </section>
+    </div>
+
+    <h2>Image Studio</h2>
+    <div class="row2">
+      <section class="card">
+        <div class="chips" id="studioJobs"></div>
+        <div id="studioUsers" class="cell-card"></div>
+      </section>
+      <section class="card">
+        <strong>失败请求</strong>
+        <div id="errors" class="cell-card"></div>
+      </section>
+    </div>
+
+    <p class="sub mt" id="updated"></p>
+  </div>
+  <script src="./modules/usage.js?v=4" defer></script>
+</body>
+</html>

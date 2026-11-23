@@ -65,7 +65,9 @@ function normalizeEndpoint(profile = {}, kind) {
       testStatus: firstDefined(nested.testStatus, profile.imageTestStatus, profile.testStatus, 'unknown'),
       testLatencyMs: firstDefined(nested.testLatencyMs, profile.imageTestLatencyMs, profile.testLatencyMs, null),
       testedAt: firstDefined(nested.testedAt, profile.imageTestedAt, profile.testedAt, null),
-      testError: firstDefined(nested.testError, profile.imageTestError, profile.testError, '')
+      testError: firstDefined(nested.testError, profile.imageTestError, profile.testError, ''),
+      hasApiKey: nested.hasApiKey === undefined ? null : Boolean(nested.hasApiKey),
+      maskedApiKey: nested.maskedApiKey || ''
     });
   }
 
@@ -77,7 +79,9 @@ function normalizeEndpoint(profile = {}, kind) {
     testStatus: firstDefined(nested.testStatus, profile.chatTestStatus, 'unknown'),
     testLatencyMs: firstDefined(nested.testLatencyMs, profile.chatTestLatencyMs, null),
     testedAt: firstDefined(nested.testedAt, profile.chatTestedAt, null),
-    testError: firstDefined(nested.testError, profile.chatTestError, '')
+    testError: firstDefined(nested.testError, profile.chatTestError, ''),
+    hasApiKey: nested.hasApiKey === undefined ? null : Boolean(nested.hasApiKey),
+    maskedApiKey: nested.maskedApiKey || ''
   });
 }
 

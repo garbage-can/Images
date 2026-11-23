@@ -91,12 +91,8 @@ function renderScopeTabs() {
   });
   const mine = $('galleryMineCount');
   const pub = $('galleryPublicCount');
-  const comic = $('galleryComicCount');
-  const video = $('galleryVideoCount');
   if (mine) mine.textContent = String(galleryCounts.mine || 0);
   if (pub) pub.textContent = String(galleryCounts.public || 0);
-  if (comic) comic.textContent = String(galleryCounts.comicProjects || 0);
-  if (video) video.textContent = String(galleryCounts.videoProjects || 0);
 }
 
 function hideGallerySummary() {

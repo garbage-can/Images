@@ -3,7 +3,7 @@
 import { $, $$ } from './dom.js';
 import { KEYS, readString, writeString } from './state.js';
 
-const FALLBACK_TAB_IDS = ['studioPanel', 'comicPanel', 'videoPanel', 'promptPanel', 'galleryPanel', 'configPanel', 'logsPanel', 'usersPanel'];
+const FALLBACK_TAB_IDS = ['studioPanel', 'promptPanel', 'galleryPanel', 'configPanel', 'logsPanel', 'usersPanel'];
 
 function availableTabIds() {
   const ids = $$('.tab-panel')
@@ -72,8 +72,6 @@ export function mountNav() {
       pending = false;
       clearTimeout(pendingTimer);
       if (k === 's') switchTab('studioPanel');
-      else if (k === 'm') switchTab('comicPanel');
-      else if (k === 'v') switchTab('videoPanel');
       else if (k === 't') switchTab('promptPanel');
       else if (k === 'g') switchTab('galleryPanel');
       else if (k === 'p') switchTab('configPanel');

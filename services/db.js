@@ -170,3 +170,7 @@ export const dbPaths = Object.freeze({
   legacyGallery: LEGACY_GALLERY,
   legacyGalleryDone: LEGACY_GALLERY_DONE
 });
+
+export function openDatabase() {
+  return open();
+}

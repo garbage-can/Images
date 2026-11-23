@@ -10,6 +10,30 @@ const switchLabel = document.querySelector('[data-switch-label]');
 
 let mode = 'login';
 
+const ssoBlock = $('#ssoBlock');
+const ssoLink = $('#ssoLogin');
+const ssoErrorMap = {
+  sso_failed: '单点登录失败，请联系管理员或使用密码登录。',
+  domain_not_allowed: '该邮箱域名未开通访问权限。',
+  state_expired: '登录会话已过期，请重试。',
+  missing_code: '单点登录回调缺少授权码，请重试。',
+  sso_disabled: '单点登录未启用。'
+};
+(async () => {
+  try {
+    const res = await fetch('/api/auth/sso/config', { headers: { accept: 'application/json' } });
+    if (!res.ok) return;
+    const cfg = await res.json();
+    if (!cfg.enabled || !ssoBlock || !ssoLink) return;
+    ssoLink.textContent = cfg.label || '使用公司账号登录';
+    ssoLink.href = cfg.loginUrl || '/api/auth/sso/start';
+    ssoBlock.hidden = false;
+  } catch {}
+})();
+const ssoError = new URLSearchParams(location.search).get('sso_error');
+if (ssoError) showError(ssoErrorMap[ssoError] || '单点登录失败，请重试。');
+
+
 function showError(msg) {
   if (!msg) {
     errorBox.hidden = true;

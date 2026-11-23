@@ -29,6 +29,11 @@
       <button class="primary" type="submit">登录</button>
     </form>
 
+    <div class="auth-sso" id="ssoBlock" hidden>
+      <a class="btn-sso" id="ssoLogin" href="/api/auth/sso/start">使用公司账号登录</a>
+      <p class="auth-hint">通过公司统一身份认证登录，无需单独密码。</p>
+    </div>
+
     <!-- 注册表单 -->
     <form id="registerForm" autocomplete="on" hidden>
       <label class="field">

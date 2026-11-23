@@ -1,0 +1,159 @@
+// /api/auth/sso/* —— OIDC 单点登录入口。
+// 流程：config -> start（302 到 IdP）-> callback（换 token、校验、建会话）。
+
+import { sendJson, sendMethodNotAllowed } from '../utils/http.js';
+import { setSessionCookie } from '../utils/cookies.js';
+import { clientIp, userAgent } from '../utils/request.js';
+import { logger } from '../utils/logger.js';
+import { users as usersTable } from '../services/db.js';
+import { createUserByAdmin } from '../services/users.js';
+import { createSession } from '../services/auth.js';
+import {
+  buildRedirectUri,
+  emailAllowed,
+  exchangeCode,
+  getDiscovery,
+  getSsoConfig,
+  pkcePair,
+  randomToken,
+  ssoPublicConfig,
+  verifyIdToken
+} from '../services/sso.js';
+
+const STATE_TTL_MS = 10 * 60_000;
+const states = new Map();
+
+function cleanupStates() {
+  const now = Date.now();
+  for (const [key, value] of states) {
+    if (value.expiresAt <= now) states.delete(key);
+  }
+}
+
+function safeRedirect(value) {
+  const target = String(value || '/');
+  if (!target.startsWith('/') || target.startsWith('//')) return '/';
+  return target;
+}
+
+function redirect(res, location) {
+  res.writeHead(302, { location });
+  res.end();
+}
+
+function fail(res, code, detail) {
+  logger.warn('auth.sso.failed', { code, detail: String(detail || '').slice(0, 160) });
+  redirect(res, '/login.html?sso_error=' + encodeURIComponent(code));
+}
+
+function usernameBase(email) {
+  let base = String(email).split('@')[0].toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+  base = base.replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 24);
+  if (base.length < 3) base = 'sso-' + randomToken(6).toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 6);
+  return base;
+}
+
+function uniqueUsername(email) {
+  const base = usernameBase(email);
+  if (!usersTable.findByLogin(base)) return base;
+  for (let i = 0; i < 8; i += 1) {
+    const candidate = (base + '-' + randomToken(4).toLowerCase().replace(/[^a-z0-9]/g, '')).slice(0, 32);
+    if (!usersTable.findByLogin(candidate)) return candidate;
+  }
+  return (base + '-' + Date.now().toString(36)).slice(0, 32);
+}
+
+function findOrCreateUser(claims) {
+  const cfg = getSsoConfig();
+  const existing = usersTable.findByLogin(claims.email);
+  if (existing) {
+    if (existing.status === 'disabled') throw new Error('account disabled');
+    return existing;
+  }
+  if (!cfg.autoProvision) throw new Error('account not provisioned');
+  return createUserByAdmin({
+    username: uniqueUsername(claims.email),
+    email: claims.email,
+    password: randomToken(24),
+    role: cfg.defaultRole
+  });
+}
+
+async function handleConfig(req, res) {
+  res.setHeader('cache-control', 'no-store');
+  sendJson(res, 200, ssoPublicConfig());
+}
+
+async function handleStart(req, res, url) {
+  const cfg = getSsoConfig();
+  if (!cfg.enabled) return sendJson(res, 404, { error: 'sso disabled' });
+  let discovery;
+  try {
+    discovery = await getDiscovery();
+  } catch (err) {
+    logger.warn('auth.sso.discovery_failed', { error: String(err.message || err).slice(0, 160) });
+    return sendJson(res, 502, { error: 'sso discovery failed' });
+  }
+  cleanupStates();
+  const state = randomToken(24);
+  const nonce = randomToken(24);
+  const { verifier, challenge } = pkcePair();
+  const redirectUri = buildRedirectUri(req);
+  const redirectTo = safeRedirect(url.searchParams.get('redirect'));
+  states.set(state, {
+    nonce,
+    verifier,
+    redirectUri,
+    redirectTo,
+    expiresAt: Date.now() + STATE_TTL_MS
+  });
+  const authorizeUrl = new URL(discovery.authorization_endpoint);
+  authorizeUrl.searchParams.set('response_type', 'code');
+  authorizeUrl.searchParams.set('client_id', cfg.clientId);
+  authorizeUrl.searchParams.set('redirect_uri', redirectUri);
+  authorizeUrl.searchParams.set('scope', cfg.scopes);
+  authorizeUrl.searchParams.set('state', state);
+  authorizeUrl.searchParams.set('nonce', nonce);
+  authorizeUrl.searchParams.set('code_challenge', challenge);
+  authorizeUrl.searchParams.set('code_challenge_method', 'S256');
+  redirect(res, authorizeUrl.toString());
+}
+
+async function handleCallback(req, res, url) {
+  const cfg = getSsoConfig();
+  if (!cfg.enabled) return fail(res, 'sso_disabled', '');
+  const state = String(url.searchParams.get('state') || '');
+  const code = String(url.searchParams.get('code') || '');
+  const stored = states.get(state);
+  states.delete(state);
+  if (!stored || stored.expiresAt <= Date.now()) return fail(res, 'state_expired', '');
+  if (!code) return fail(res, 'missing_code', '');
+  try {
+    const tokens = await exchangeCode({
+      code,
+      codeVerifier: stored.verifier,
+      redirectUri: stored.redirectUri
+    });
+    const claims = await verifyIdToken(tokens.id_token, { nonce: stored.nonce });
+    if (!emailAllowed(claims.email)) return fail(res, 'domain_not_allowed', claims.email);
+    const user = findOrCreateUser(claims);
+    const { sessionId } = createSession({
+      userId: user.id,
+      ua: userAgent(req),
+      ip: clientIp(req)
+    });
+    setSessionCookie(res, sessionId);
+    logger.info('auth.sso.login', { userId: user.id, provider: 'oidc' });
+    redirect(res, stored.redirectTo || '/');
+  } catch (err) {
+    return fail(res, 'sso_failed', err.message || err);
+  }
+}
+
+export async function handleSsoRoute(req, res, pathname, url) {
+  if (req.method !== 'GET') return sendMethodNotAllowed(res, ['GET']);
+  if (pathname === '/api/auth/sso/config') return handleConfig(req, res);
+  if (pathname === '/api/auth/sso/start') return handleStart(req, res, url);
+  if (pathname === '/api/auth/sso/callback') return handleCallback(req, res, url);
+  return sendJson(res, 404, { error: 'not found' });
+}

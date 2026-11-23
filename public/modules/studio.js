@@ -603,6 +603,20 @@ function handleQueueJobFinished(job, { onSavedImages } = {}) {
     });
     return;
   }
+  const cancelled = job.status === 'cancelled';
+  if (cancelled) {
+    showError('');
+    addLog('info', 'image.generate.cancelled', {
+      jobId: job.id,
+      model: job.model,
+      profileName: job.profileName,
+      interfaceMode: job.payload?.interfaceMode || (job.payload?.useSystemDefault ? 'system' : 'custom'),
+      durationMs: job.startedAt && job.finishedAt ? job.finishedAt - job.startedAt : undefined,
+      prompt: job.payload?.prompt || ''
+    });
+    setStatus('任务已取消', 'ready', 2200);
+    return;
+  }
   const message = job.error || job.progress?.message || '生成失败';
   showError(message);
   addLog('error', 'image.generate.failed', {
@@ -614,7 +628,7 @@ function handleQueueJobFinished(job, { onSavedImages } = {}) {
     error: message,
     prompt: job.payload?.prompt || ''
   });
-  setStatus(`队列任务${job.status === 'cancelled' ? '已取消' : '失败'}`, 'err', 2200);
+  setStatus('队列任务失败', 'err', 2200);
 }
 
 // 外部调用：把日志里的 prompt 回填到 Studio。

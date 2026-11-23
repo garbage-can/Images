@@ -10,6 +10,7 @@ import { handleGenerate, handleGenerateConfig, handleGenerateStream } from './ro
 import { handleGallery } from './routes/gallery.js';
 import { handleTestProfile } from './routes/test-profile.js';
 import { handleAuthRoute } from './routes/auth.js';
+import { handleSsoRoute } from './routes/sso.js';
 import { handleUsersRoute } from './routes/users.js';
 import { handleProfileRoute } from './routes/profile.js';
 import { handleAdminGalleryRoute } from './routes/admin-gallery.js';
@@ -19,10 +20,7 @@ import { handlePromptExamplesRoute } from './routes/prompt-examples.js';
 import { handlePromptSquareRoute } from './routes/prompt-square.js';
 import { handleJobsRoute } from './routes/jobs.js';
 import { handleClientLogsRoute } from './routes/client-logs.js';
-import { handleComicProjectsRoute } from './routes/comic-projects.js';
-import { handleComicStoryboardsRoute } from './routes/comic-storyboards.js';
-import { handleVideoProjectsRoute } from './routes/video-projects.js';
-import { handleVideoStoryboardsRoute } from './routes/video-storyboards.js';
+import { handleAdminUsageRoute } from './routes/admin-usage.js';
 import { handleRegistrationRoute } from './routes/registration.js';
 import { createStaticHandler } from './routes/static.js';
 
@@ -50,10 +48,12 @@ const serveStatic = createStaticHandler(PUBLIC_DIR, ROOT_DIR);
 const apiPrefix = (prefix) => (pathname) => matchesRoutePrefix(pathname, prefix);
 
 const API_ROUTES = [
+  { public: true, match: (pathname) => pathname.startsWith('/api/auth/sso/'), handle: (req, res, pathname, url) => handleSsoRoute(req, res, pathname, url) },
   { public: true, match: apiPrefix('/api/auth'), handle: (req, res, pathname) => handleAuthRoute(req, res, pathname) },
   { match: apiPrefix('/api/users'), handle: (req, res, pathname, url) => handleUsersRoute(req, res, pathname, url) },
   { match: apiPrefix('/api/profile'), handle: (req, res, pathname) => handleProfileRoute(req, res, pathname) },
   { match: apiPrefix('/api/admin/gallery'), handle: (req, res, pathname, url) => handleAdminGalleryRoute(req, res, pathname, url) },
+  { match: (pathname) => pathname === '/api/admin/usage', handle: (req, res, pathname, url) => handleAdminUsageRoute(req, res, pathname, url) },
   { match: apiPrefix('/api/admin/registration'), handle: (req, res, pathname) => handleRegistrationRoute(req, res, pathname) },
   { match: (pathname) => matchesRoutePrefix(pathname, '/api/admin/quota') || pathname === '/api/quota/me', handle: (req, res, pathname) => handleQuotaRoute(req, res, pathname) },
   { match: (pathname) => matchesRoutePrefix(pathname, '/api/interfaces') || matchesRoutePrefix(pathname, '/api/admin/interfaces'), handle: (req, res, pathname) => handleInterfacesRoute(req, res, pathname) },
@@ -61,10 +61,6 @@ const API_ROUTES = [
   { match: apiPrefix('/api/prompt-square'), handle: (req, res, pathname, url) => handlePromptSquareRoute(req, res, pathname, url) },
   { match: (pathname) => matchesRoutePrefix(pathname, '/api/jobs') || matchesRoutePrefix(pathname, '/api/admin/jobs'), handle: (req, res, pathname, url) => handleJobsRoute(req, res, pathname, url) },
   { match: (pathname) => matchesRoutePrefix(pathname, '/api/client-logs') || matchesRoutePrefix(pathname, '/api/admin/client-logs'), handle: (req, res, pathname, url) => handleClientLogsRoute(req, res, pathname, url) },
-  { match: apiPrefix('/api/comic-projects'), handle: (req, res, pathname, url) => handleComicProjectsRoute(req, res, pathname, url) },
-  { match: apiPrefix('/api/comic-storyboards'), handle: (req, res, pathname, url) => handleComicStoryboardsRoute(req, res, pathname, url) },
-  { match: apiPrefix('/api/video-projects'), handle: (req, res, pathname, url) => handleVideoProjectsRoute(req, res, pathname, url) },
-  { match: apiPrefix('/api/video-storyboards'), handle: (req, res, pathname, url) => handleVideoStoryboardsRoute(req, res, pathname, url) },
   { match: (pathname, req) => req.method === 'GET' && pathname === '/api/generate/config', handle: (req, res) => handleGenerateConfig(req, res) },
   { match: (pathname, req) => req.method === 'POST' && pathname === '/api/generate/stream', handle: (req, res) => handleGenerateStream(req, res) },
   { match: (pathname, req) => req.method === 'POST' && pathname === '/api/generate', handle: (req, res) => handleGenerate(req, res) },
