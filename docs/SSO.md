@@ -64,3 +64,34 @@ GET /api/auth/sso/callback    -> 校验 state / 换 token / 验签 ID Token / �
 3. 建议配置 `SSO_ALLOWED_DOMAINS`，避免任意 IdP 账号进入；
 4. 如果 IdP 支持，开启 MFA；本项目只信任 IdP 的认证结果；
 5. 反向代理需传递 `X-Forwarded-Proto` / `X-Forwarded-Host`，否则自动生成的回调地址可能不对，此时显式设置 `SSO_REDIRECT_URI`。
+
+
+## 6. 自研 OAuth2（ERP 对接）
+
+如果 ERP 只提供标准 OAuth2 三件套（authorize / token / userinfo），把 `SSO_MODE` 设为 `oauth2`：
+
+```env
+SSO_MODE=oauth2
+SSO_AUTHORIZE_URL=https://erp.example.com/oauth/authorize
+SSO_TOKEN_URL=https://erp.example.com/oauth/token
+SSO_USERINFO_URL=https://erp.example.com/oauth/userinfo
+SSO_CLIENT_ID=image-studio
+SSO_CLIENT_SECRET=...
+SSO_SCOPES=openid profile email
+SSO_EMAIL_FIELD=email
+SSO_NAME_FIELD=name
+SSO_DEPARTMENT_FIELD=department
+SSO_GROUPS_FIELD=groups
+SSO_ADMIN_GROUPS=img-admin
+```
+
+流程与 OIDC 相同（state + PKCE），区别是不再校验 ID Token，而是用 access_token 调 userinfo，再按字段映射：
+
+| 平台字段 | 默认 claim | 说明 |
+|---|---|---|
+| 邮箱 | `email` | 必填，用于匹配/建号 |
+| 姓名 | `name` | 写入 display_name |
+| 部门 | `department` | 用于部门默认额度 |
+| 组 | `groups` | 命中 `SSO_ADMIN_GROUPS` 自动给 admin |
+
+字段支持点路径，例如 `data.profile.email`。

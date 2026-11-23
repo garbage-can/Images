@@ -4,6 +4,7 @@
 import {
   users,
   userQuotas,
+  departmentQuotas,
   usageDaily,
   systemSettings,
   images as imagesTable,
@@ -101,21 +102,51 @@ export function setDefaults(patch, updatedBy) {
 export function effectiveQuota(userId) {
   const defaults = getDefaults();
   const row = userQuotas.get(userId);
+  const user = users.findById(userId);
+  const department = user?.department || null;
+  const deptRow = department ? departmentQuotas.get(department) : null;
   return {
-    daily_limit: pickValue(row?.daily_limit, defaults.daily_limit),
-    monthly_limit: pickValue(row?.monthly_limit, defaults.monthly_limit),
-    storage_limit_mb: pickValue(row?.storage_limit_mb, defaults.storage_limit_mb),
-    concurrent_limit: pickValue(row?.concurrent_limit, defaults.concurrent_limit),
-    overridden: !!row,
+    daily_limit: pickValue(row?.daily_limit, deptRow?.daily_limit, defaults.daily_limit),
+    monthly_limit: pickValue(row?.monthly_limit, deptRow?.monthly_limit, defaults.monthly_limit),
+    storage_limit_mb: pickValue(row?.storage_limit_mb, deptRow?.storage_limit_mb, defaults.storage_limit_mb),
+    concurrent_limit: pickValue(row?.concurrent_limit, deptRow?.concurrent_limit, defaults.concurrent_limit),
+    overridden: Boolean(row || deptRow),
+    source: row ? 'user' : (deptRow ? 'department' : 'default'),
+    department,
+    department_override: Boolean(deptRow),
     raw: row || null,
+    department_raw: deptRow || null,
     defaults
   };
 }
 
-function pickValue(override, fallback) {
-  if (override === undefined || override === null || override === '') return fallback ?? null;
-  const n = Number(override);
-  return Number.isFinite(n) ? n : (fallback ?? null);
+export function listDepartmentQuotas() {
+  return departmentQuotas.list();
+}
+
+export function setDepartmentQuota(department, patch = {}, updatedBy = null) {
+  const name = String(department || '').trim();
+  if (!name || name.length > 80) throw new Error('invalid department');
+  const allowed = ['daily_limit', 'monthly_limit', 'storage_limit_mb', 'concurrent_limit'];
+  const clean = {};
+  for (const key of allowed) {
+    if (patch[key] === undefined) continue;
+    clean[key] = patch[key] === null || patch[key] === '' ? null : Math.max(0, Math.floor(Number(patch[key]) || 0));
+  }
+  return departmentQuotas.upsert(name, clean, updatedBy);
+}
+
+export function clearDepartmentQuota(department) {
+  departmentQuotas.delete(String(department || '').trim());
+}
+
+function pickValue(...candidates) {
+  for (const value of candidates) {
+    if (value === undefined || value === null || value === '') continue;
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
 }
 
 // 当前用量快照

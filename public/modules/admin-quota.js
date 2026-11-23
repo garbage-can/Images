@@ -14,6 +14,7 @@ import {
 
 let quotaItems = [];
 let quotaDefaults = null;
+let quotaDepartments = [];
 let quotaLoaded = false;
 const quotaSelected = new Set();
 let openQuotaMenu = null;
@@ -74,11 +75,103 @@ export async function refreshQuota({ silent = false } = {}) {
     }
     renderDefaultsCard();
     renderQuotaTable();
+    loadDepartments();
     if (!silent) setStatus(`额度列表已刷新 · ${quotaItems.length} 人`, 'ok', 1400);
   } catch (err) {
     setStatus(`加载额度失败：${err?.message || err}`, 'err', 2400);
     const wrap = $('quotaTableWrap');
     if (wrap) wrap.innerHTML = quotaErrorHtml(err?.message || '加载失败');
+  }
+}
+
+async function loadDepartments() {
+  const host = $('quotaDepartmentList');
+  if (!host) return;
+  try {
+    const resp = await apiFetch('/api/admin/quota/departments');
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data?.error || `HTTP ${resp.status}`);
+    quotaDepartments = Array.isArray(data.departments) ? data.departments : [];
+    renderDepartments();
+  } catch {
+    host.textContent = '部门额度加载失败';
+  }
+}
+
+function renderDepartments() {
+  const host = $('quotaDepartmentList');
+  if (!host) return;
+  host.textContent = '';
+  if (!quotaDepartments.length) {
+    const empty = document.createElement('p');
+    empty.className = 'hint';
+    empty.textContent = '还没有部门额度；添加后，新员工会自动继承。';
+    host.appendChild(empty);
+    return;
+  }
+  for (const row of quotaDepartments) {
+    const line = document.createElement('div');
+    line.className = 'quota-dept-row';
+
+    const name = document.createElement('span');
+    name.className = 'quota-dept-name';
+    name.textContent = row.department;
+
+    const meta = document.createElement('span');
+    meta.className = 'quota-dept-meta';
+    meta.textContent = `每月 ${row.monthly_limit ?? '默认'} · 每日 ${row.daily_limit ?? '默认'}`;
+
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'ghost small';
+    del.dataset.quotaDeptDelete = row.department;
+    del.textContent = '删除';
+
+    line.append(name, meta, del);
+    host.appendChild(line);
+  }
+}
+
+async function saveDepartment() {
+  const nameInput = $('quotaDeptName');
+  const monthlyInput = $('quotaDeptMonthly');
+  const dailyInput = $('quotaDeptDaily');
+  const department = String(nameInput?.value || '').trim();
+  if (!department) {
+    setStatus('请填写部门名称', 'err', 1600);
+    return;
+  }
+  const body = {};
+  if (monthlyInput?.value !== '') body.monthly_limit = Number(monthlyInput.value);
+  if (dailyInput?.value !== '') body.daily_limit = Number(dailyInput.value);
+  try {
+    const resp = await apiFetch(`/api/admin/quota/departments/${encodeURIComponent(department)}`, {
+      method: 'PUT',
+      body: JSON.stringify(body)
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data?.error || `HTTP ${resp.status}`);
+    setStatus(`部门额度已保存：${department}`, 'ok', 1600);
+    if (nameInput) nameInput.value = '';
+    if (monthlyInput) monthlyInput.value = '';
+    if (dailyInput) dailyInput.value = '';
+    await loadDepartments();
+  } catch (err) {
+    setStatus(`保存失败：${err?.message || err}`, 'err', 2200);
+  }
+}
+
+async function deleteDepartment(department) {
+  try {
+    const resp = await apiFetch(`/api/admin/quota/departments/${encodeURIComponent(department)}`, {
+      method: 'DELETE'
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data?.error || `HTTP ${resp.status}`);
+    setStatus(`已删除部门额度：${department}`, 'ok', 1600);
+    await loadDepartments();
+  } catch (err) {
+    setStatus(`删除失败：${err?.message || err}`, 'err', 2200);
   }
 }
 
@@ -445,6 +538,11 @@ export function bindQuotaPanel() {
   $('quotaBulkClear')?.addEventListener('click', () => {
     quotaSelected.clear();
     renderQuotaTable();
+  });
+  $('quotaDeptSave')?.addEventListener('click', saveDepartment);
+  $('quotaDepartmentList')?.addEventListener('click', (ev) => {
+    const btn = ev.target.closest('[data-quota-dept-delete]');
+    if (btn) deleteDepartment(btn.dataset.quotaDeptDelete);
   });
   $('quotaBulkEdit')?.addEventListener('click', bulkEditQuota);
   $('quotaBulkResetToday')?.addEventListener('click', () => bulkResetUsage('today'));

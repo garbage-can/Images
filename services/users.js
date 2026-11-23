@@ -144,7 +144,7 @@ function normalizeExistingAvatarUrl(value) {
   }
 }
 
-export function createUserByAdmin({ username, email, password, role = 'user' } = {}) {
+export function createUserByAdmin({ username, email, password, role = 'user', department = null, source = 'local', displayName = null } = {}) {
   if (!username || !email || !password) {
     throw new Error('username, email and password are required');
   }
@@ -162,7 +162,10 @@ export function createUserByAdmin({ username, email, password, role = 'user' } =
     email,
     passwordHash: hash,
     passwordSalt: salt,
-    role
+    role,
+    department,
+    source,
+    displayName
   });
   return sanitizeUser(row);
 }

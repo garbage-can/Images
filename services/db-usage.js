@@ -58,6 +58,58 @@ export function createUserQuotaRepository({ open, nowIso }) {
   return repo;
 }
 
+export function createDepartmentQuotaRepository({ open, nowIso }) {
+  const repo = {
+    list() {
+      return open().prepare('SELECT * FROM department_quotas ORDER BY department ASC').all();
+    },
+    get(department) {
+      if (!department) return null;
+      return open().prepare('SELECT * FROM department_quotas WHERE department = ?').get(department) || null;
+    },
+    upsert(department, patch, updatedBy) {
+      const db = open();
+      const cur = repo.get(department);
+      const next = { ...(cur || {}), ...patch };
+      if (cur) {
+        db.prepare(`
+          UPDATE department_quotas SET
+            daily_limit = ?, monthly_limit = ?, storage_limit_mb = ?, concurrent_limit = ?,
+            updated_at = ?, updated_by = ?
+          WHERE department = ?
+        `).run(
+          next.daily_limit ?? null,
+          next.monthly_limit ?? null,
+          next.storage_limit_mb ?? null,
+          next.concurrent_limit ?? null,
+          nowIso(),
+          updatedBy || null,
+          department
+        );
+      } else {
+        db.prepare(`
+          INSERT INTO department_quotas
+          (department, daily_limit, monthly_limit, storage_limit_mb, concurrent_limit, updated_at, updated_by)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          department,
+          next.daily_limit ?? null,
+          next.monthly_limit ?? null,
+          next.storage_limit_mb ?? null,
+          next.concurrent_limit ?? null,
+          nowIso(),
+          updatedBy || null
+        );
+      }
+      return repo.get(department);
+    },
+    delete(department) {
+      open().prepare('DELETE FROM department_quotas WHERE department = ?').run(department);
+    }
+  };
+  return repo;
+}
+
 export function createUsageDailyRepository({ open }) {
   const repo = {
     get(userId, day) {

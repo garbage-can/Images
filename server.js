@@ -11,6 +11,7 @@ import { handleGallery } from './routes/gallery.js';
 import { handleTestProfile } from './routes/test-profile.js';
 import { handleAuthRoute } from './routes/auth.js';
 import { handleSsoRoute } from './routes/sso.js';
+import { handleErpRoute } from './routes/erp.js';
 import { handleUsersRoute } from './routes/users.js';
 import { handleProfileRoute } from './routes/profile.js';
 import { handleAdminGalleryRoute } from './routes/admin-gallery.js';
@@ -48,6 +49,7 @@ const serveStatic = createStaticHandler(PUBLIC_DIR, ROOT_DIR);
 const apiPrefix = (prefix) => (pathname) => matchesRoutePrefix(pathname, prefix);
 
 const API_ROUTES = [
+  { public: true, match: (pathname) => pathname.startsWith('/api/erp/'), handle: (req, res, pathname, url) => handleErpRoute(req, res, pathname, url) },
   { public: true, match: (pathname) => pathname.startsWith('/api/auth/sso/'), handle: (req, res, pathname, url) => handleSsoRoute(req, res, pathname, url) },
   { public: true, match: apiPrefix('/api/auth'), handle: (req, res, pathname) => handleAuthRoute(req, res, pathname) },
   { match: apiPrefix('/api/users'), handle: (req, res, pathname, url) => handleUsersRoute(req, res, pathname, url) },
@@ -71,8 +73,8 @@ const API_ROUTES = [
 ];
 
 function dispatchApiRoute(req, res, pathname, url) {
-  // 所有非 GET 请求统一走 CSRF（登录/注册即使未登录也要校验同源 + X-Requested-With）
-  if (!requireCsrf(req, res, pathname)) return;
+  // 所有非 GET 请求统一走 CSRF；ERP 服务端接口用 Bearer token，跳过 CSRF。
+  if (!pathname.startsWith('/api/erp/') && !requireCsrf(req, res, pathname)) return;
 
   const route = API_ROUTES.find((item) => item.match(pathname, req));
   if (!route) return sendJson(res, 404, { error: 'not found' });

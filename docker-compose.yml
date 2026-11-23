@@ -99,6 +99,17 @@ services:
       SSO_DEFAULT_ROLE: "${SSO_DEFAULT_ROLE:-user}"
       SSO_BUTTON_LABEL: "${SSO_BUTTON_LABEL:-使用公司账号登录}"
       SSO_TOKEN_AUTH: "${SSO_TOKEN_AUTH:-post}"
+      SSO_MODE: "${SSO_MODE:-oidc}"
+      SSO_AUTHORIZE_URL: "${SSO_AUTHORIZE_URL:-}"
+      SSO_TOKEN_URL: "${SSO_TOKEN_URL:-}"
+      SSO_USERINFO_URL: "${SSO_USERINFO_URL:-}"
+      SSO_EMAIL_FIELD: "${SSO_EMAIL_FIELD:-email}"
+      SSO_NAME_FIELD: "${SSO_NAME_FIELD:-name}"
+      SSO_DEPARTMENT_FIELD: "${SSO_DEPARTMENT_FIELD:-department}"
+      SSO_ROLE_CLAIM: "${SSO_ROLE_CLAIM:-role}"
+      SSO_GROUPS_FIELD: "${SSO_GROUPS_FIELD:-groups}"
+      SSO_ADMIN_GROUPS: "${SSO_ADMIN_GROUPS:-}"
+      ERP_API_TOKEN: "${ERP_API_TOKEN:-}"
       TRUST_PROXY_ALLOWED_IPS: "${TRUST_PROXY_ALLOWED_IPS:-127.0.0.1,::1}"
 
       # 默认支持 README 中的 http://localhost:8787 直连；放到 HTTPS 反代后再设为 production 以给 cookie 加 Secure。

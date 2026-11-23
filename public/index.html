@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="./profiles.css?v=corp-20261123" />
   <link rel="stylesheet" href="./prompts.css?v=corp-20261123" />
   <link rel="stylesheet" href="./logs.css?v=corp-20261123" />
-  <link rel="stylesheet" href="./admin.css?v=corp-20261123" />
+  <link rel="stylesheet" href="./admin.css?v=corp-20261123d" />
     <link rel="stylesheet" href="./usage.css?v=corp-20261123b" />
   <script src="./main-boot.js?v=corp-20261123"></script>
 </head>
@@ -829,6 +829,22 @@
           <p class="quota-defaults-hint">日/月次数限制系统默认接口调用（含生图与提示词优化）；存储与并发同时限制系统默认和个人自定义接口（管理员生成豁免；留空 = 不限，失焦自动保存）</p>
           <div id="quotaDefaultsCard" class="quota-defaults-card"></div>
 
+          <div class="quota-dept-card">
+            <div class="quota-dept-head">
+              <div>
+                <strong>部门默认额度</strong>
+                <p class="hint">个人覆盖优先；没有个人覆盖时继承部门，最后回落到全站默认。</p>
+              </div>
+            </div>
+            <div id="quotaDepartmentList" class="quota-dept-list"></div>
+            <div class="quota-dept-form">
+              <input id="quotaDeptName" placeholder="部门名称" maxlength="80" autocomplete="off" />
+              <input id="quotaDeptMonthly" type="number" min="0" placeholder="每月次数" />
+              <input id="quotaDeptDaily" type="number" min="0" placeholder="每日次数" />
+              <button class="ghost small" id="quotaDeptSave" type="button">保存部门额度</button>
+            </div>
+          </div>
+
           <div id="quotaBulkBar" class="admin-gallery-bulk quota-bulk" hidden>
             <span id="quotaBulkCount">已选 0 人</span>
             <button class="ghost small" id="quotaBulkClear">取消选择</button>
@@ -1039,6 +1055,6 @@
     </section>
   </aside>
 
-  <script type="module" src="./app.js?v=corp-20261123c"></script>
+  <script type="module" src="./app.js?v=corp-20261123d"></script>
 </body>
 </html>

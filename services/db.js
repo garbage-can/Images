@@ -15,7 +15,7 @@ import { createPromptSquareRepository } from './db-prompt-square.js';
 import { createSchemaMigrationRepository, createSystemSettingsRepository } from './db-system.js';
 import { migrateSchema } from './sqlite-schema-migrations.js';
 import { createAuditLogRepository, createClientLogRepository, createImageLikeRepository } from './db-logs.js';
-import { createUsageDailyRepository, createUserQuotaRepository } from './db-usage.js';
+import { createUsageDailyRepository, createUserQuotaRepository, createDepartmentQuotaRepository } from './db-usage.js';
 import { createGenerationJobRepository } from './db-generation-jobs.js';
 import { createQueueEventRepository } from './db-queue-events.js';
 import { createImageRepository } from './db-images.js';
@@ -123,6 +123,7 @@ export const clientLogs = createClientLogRepository({ open, nowIso });
 // ---- user_quotas ----
 
 export const userQuotas = createUserQuotaRepository({ open, nowIso });
+export const departmentQuotas = createDepartmentQuotaRepository({ open, nowIso });
 
 // ---- usage_daily ----
 

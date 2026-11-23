@@ -10,8 +10,10 @@ import { createUserByAdmin } from '../services/users.js';
 import { createSession } from '../services/auth.js';
 import {
   buildRedirectUri,
+  claimsFromUserinfo,
   emailAllowed,
   exchangeCode,
+  fetchUserinfo,
   getDiscovery,
   getSsoConfig,
   pkcePair,
@@ -65,17 +67,31 @@ function uniqueUsername(email) {
 
 function findOrCreateUser(claims) {
   const cfg = getSsoConfig();
-  const existing = usersTable.findByLogin(claims.email);
+  const role = claims.role === 'admin' ? 'admin' : cfg.defaultRole;
+  const existing = usersTable.findByEmail(claims.email) || usersTable.findByLogin(claims.email);
   if (existing) {
     if (existing.status === 'disabled') throw new Error('account disabled');
-    return existing;
+    if (claims.department || claims.name) {
+      usersTable.updateOrg(existing.id, {
+        department: claims.department || existing.department,
+        source: existing.source || 'sso',
+        displayName: claims.name || existing.display_name
+      });
+    }
+    if (role === 'admin' && existing.role !== 'admin') {
+      usersTable.updateRole(existing.id, 'admin');
+    }
+    return usersTable.findById(existing.id);
   }
   if (!cfg.autoProvision) throw new Error('account not provisioned');
   return createUserByAdmin({
     username: uniqueUsername(claims.email),
     email: claims.email,
     password: randomToken(24),
-    role: cfg.defaultRole
+    role,
+    department: claims.department || null,
+    source: 'sso',
+    displayName: claims.name || null
   });
 }
 
@@ -134,7 +150,13 @@ async function handleCallback(req, res, url) {
       codeVerifier: stored.verifier,
       redirectUri: stored.redirectUri
     });
-    const claims = await verifyIdToken(tokens.id_token, { nonce: stored.nonce });
+    let claims;
+    if (cfg.mode === 'oauth2') {
+      const info = await fetchUserinfo(tokens.access_token);
+      claims = claimsFromUserinfo(info);
+    } else {
+      claims = await verifyIdToken(tokens.id_token, { nonce: stored.nonce });
+    }
     if (!emailAllowed(claims.email)) return fail(res, 'domain_not_allowed', claims.email);
     const user = findOrCreateUser(claims);
     const { sessionId } = createSession({
@@ -143,7 +165,7 @@ async function handleCallback(req, res, url) {
       ip: clientIp(req)
     });
     setSessionCookie(res, sessionId);
-    logger.info('auth.sso.login', { userId: user.id, provider: 'oidc' });
+    logger.info('auth.sso.login', { userId: user.id, provider: cfg.mode });
     redirect(res, stored.redirectTo || '/');
   } catch (err) {
     return fail(res, 'sso_failed', err.message || err);

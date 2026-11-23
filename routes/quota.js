@@ -17,7 +17,10 @@ import {
   clearUserQuota,
   getDefaults,
   setDefaults,
-  resetUsage
+  resetUsage,
+  listDepartmentQuotas,
+  setDepartmentQuota,
+  clearDepartmentQuota
 } from '../services/quota.js';
 import { record as auditRecord } from '../services/audit.js';
 import { sanitizeUser } from '../services/auth.js';
@@ -150,6 +153,48 @@ async function handleUserReset(req, res, id) {
   sendJson(res, 200, { ok: true, usage: usageSnapshot(id) });
 }
 
+async function handleDepartments(req, res, department) {
+  if (!department) {
+    if (req.method !== 'GET') {
+      sendMethodNotAllowed(res, ['GET']);
+      return;
+    }
+    sendJson(res, 200, { departments: listDepartmentQuotas() });
+    return;
+  }
+
+  if (req.method === 'GET') {
+    const row = listDepartmentQuotas().find((item) => item.department === department) || null;
+    sendJson(res, 200, { department: row });
+    return;
+  }
+
+  if (req.method === 'PUT') {
+    let body = {};
+    try { body = await readJsonBody(req); } catch (err) {
+      sendJson(res, bodyErrorStatus(err), { error: err.message || 'invalid json' });
+      return;
+    }
+    try {
+      const row = setDepartmentQuota(department, sanitizeQuotaPatch(body || {}), req.session.user.id);
+      auditRecord(req, 'quota.department_update', { type: 'department', id: department }, body);
+      sendJson(res, 200, { department: row });
+    } catch (err) {
+      sendJson(res, routeErrorStatus(err), { error: err.message });
+    }
+    return;
+  }
+
+  if (req.method === 'DELETE') {
+    clearDepartmentQuota(department);
+    auditRecord(req, 'quota.department_clear', { type: 'department', id: department });
+    sendJson(res, 200, { ok: true });
+    return;
+  }
+
+  sendMethodNotAllowed(res, ['GET', 'PUT', 'DELETE']);
+}
+
 export async function handleQuotaRoute(req, res, pathname) {
   // /api/quota/me
   if (pathname === '/api/quota/me') return handleMe(req, res);
@@ -159,6 +204,13 @@ export async function handleQuotaRoute(req, res, pathname) {
 
   if (pathname === '/api/admin/quota/defaults') {
     return handleDefaults(req, res);
+  }
+  if (pathname === '/api/admin/quota/departments') {
+    return handleDepartments(req, res, '');
+  }
+  const dept = pathname.match(/^\/api\/admin\/quota\/departments\/([^/]+)\/?$/);
+  if (dept) {
+    return handleDepartments(req, res, decodeURIComponent(dept[1]));
   }
   if (pathname === '/api/admin/quota/users') {
     if (req.method === 'GET') return handleListUsers(req, res);

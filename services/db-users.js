@@ -67,19 +67,22 @@ export function createUserRepository({ open, nowIso }) {
       const { where, params } = userListFilterSql(options);
       return open().prepare(`SELECT COUNT(*) AS n FROM users ${where}`).get(...params).n;
     },
-    create({ username, email, passwordHash, passwordSalt, role = 'user', signupIp = null, signupUserAgent = null }) {
+    create({ username, email, passwordHash, passwordSalt, role = 'user', signupIp = null, signupUserAgent = null, department = null, source = 'local', displayName = null }) {
       const db = open();
       const id = randomUUID();
       const now = nowIso();
       db.prepare(`
         INSERT INTO users
-        (id, username, email, password_hash, password_salt, role, status, signup_ip, signup_user_agent, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)
-      `).run(id, username, email, passwordHash, passwordSalt, role, signupIp || null, signupUserAgent || null, now, now);
+        (id, username, email, password_hash, password_salt, role, status, signup_ip, signup_user_agent, department, source, display_name, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?)
+      `).run(id, username, email, passwordHash, passwordSalt, role, signupIp || null, signupUserAgent || null, department || null, source || 'local', displayName || null, now, now);
       return repo.findById(id);
     },
     findById(id) {
       return open().prepare('SELECT * FROM users WHERE id = ?').get(id) || null;
+    },
+    findByEmail(email) {
+      return open().prepare('SELECT * FROM users WHERE email = ? LIMIT 1').get(email) || null;
     },
     findByLogin(login) {
       return open().prepare(
@@ -93,7 +96,7 @@ export function createUserRepository({ open, nowIso }) {
       return open().prepare(`
         SELECT
           id, username, email, role, status, password_reset_required, avatar_url,
-          signup_ip, signup_user_agent, created_at, updated_at, last_login_at
+          signup_ip, signup_user_agent, department, source, display_name, created_at, updated_at, last_login_at
         FROM users
         ${where}
         ORDER BY created_at ASC
@@ -111,6 +114,20 @@ export function createUserRepository({ open, nowIso }) {
     },
     updateStatus(id, status) {
       open().prepare('UPDATE users SET status = ?, updated_at = ? WHERE id = ?').run(status, nowIso(), id);
+      return repo.findById(id);
+    },
+    updateOrg(id, { department, source, displayName } = {}) {
+      const cur = repo.findById(id);
+      if (!cur) return null;
+      open().prepare(`
+        UPDATE users SET department = ?, source = ?, display_name = ?, updated_at = ? WHERE id = ?
+      `).run(
+        department === undefined ? cur.department : (department || null),
+        source === undefined ? cur.source : (source || 'local'),
+        displayName === undefined ? cur.display_name : (displayName || null),
+        nowIso(),
+        id
+      );
       return repo.findById(id);
     },
     updatePassword(id, passwordHash, passwordSalt, { resetRequired = false } = {}) {

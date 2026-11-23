@@ -360,6 +360,24 @@ ${PROMPT_SQUARE_INDEXES}
 ${PROMPT_SQUARE_FTS_SCHEMA}
 `;
 
+function migrateOrgAndDepartmentQuotas(db) {
+  addColumnIfMissing(db, 'users', 'department', 'department TEXT');
+  addColumnIfMissing(db, 'users', 'source', "source TEXT NOT NULL DEFAULT 'local'");
+  addColumnIfMissing(db, 'users', 'display_name', 'display_name TEXT');
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS department_quotas (
+      department        TEXT PRIMARY KEY,
+      daily_limit       INTEGER,
+      monthly_limit     INTEGER,
+      storage_limit_mb  INTEGER,
+      concurrent_limit  INTEGER,
+      updated_at        TEXT NOT NULL,
+      updated_by        TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_users_department ON users(department);
+  `);
+}
+
 export function migrateSchema(db, { nowIso, dbPath, migrationBackupDir, legacyGallery, legacyGalleryDone }) {
   db.exec(SCHEMA);
   runSchemaMigration(db, 1, 'user_abuse_columns', () => migrateUserAbuseColumns(db));
@@ -378,6 +396,7 @@ export function migrateSchema(db, { nowIso, dbPath, migrationBackupDir, legacyGa
   runSchemaMigration(db, 13, 'image_variant_paths', () => migrateImageVariantPaths(db));
   runSchemaMigration(db, 14, 'queue_event_log', () => migrateQueueEventLog(db));
   runSchemaMigration(db, 15, 'video_project_tables', () => migrateVideoProjectTables(db));
+  runSchemaMigration(db, 16, 'org_and_department_quotas', () => migrateOrgAndDepartmentQuotas(db));
   seedPromptSquareDefaults(db, { nowIso });
   migrateLegacyGallery(db, { legacyGallery, legacyGalleryDone, nowIso });
 }

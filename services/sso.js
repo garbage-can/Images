@@ -22,22 +22,40 @@ function envFlag(name, fallback = false) {
 
 export function getSsoConfig() {
   const issuer = env('SSO_ISSUER').replace(/\/+$/, '');
+  const mode = env('SSO_MODE', 'oidc') === 'oauth2' ? 'oauth2' : 'oidc';
   const allowedDomains = env('SSO_ALLOWED_DOMAINS')
     .split(/[\s,]+/)
     .map((item) => item.trim().toLowerCase().replace(/^@/, ''))
     .filter(Boolean);
+  const authorizeUrl = env('SSO_AUTHORIZE_URL');
+  const tokenUrl = env('SSO_TOKEN_URL');
+  const userinfoUrl = env('SSO_USERINFO_URL');
+  const oauthReady = Boolean(authorizeUrl && tokenUrl && userinfoUrl && env('SSO_CLIENT_ID'));
   return {
-    enabled: envFlag('SSO_ENABLED') && Boolean(issuer && env('SSO_CLIENT_ID')),
+    enabled: envFlag('SSO_ENABLED') && (mode === 'oauth2' ? oauthReady : Boolean(issuer && env('SSO_CLIENT_ID'))),
+    mode,
     issuer,
     clientId: env('SSO_CLIENT_ID'),
     clientSecret: env('SSO_CLIENT_SECRET'),
     scopes: env('SSO_SCOPES', 'openid profile email'),
     redirectUri: env('SSO_REDIRECT_URI'),
+    authorizeUrl,
+    tokenUrl,
+    userinfoUrl,
     allowedDomains,
     autoProvision: envFlag('SSO_AUTO_PROVISION', true),
     defaultRole: env('SSO_DEFAULT_ROLE', 'user') === 'admin' ? 'admin' : 'user',
     buttonLabel: env('SSO_BUTTON_LABEL', '使用公司账号登录'),
-    tokenAuth: env('SSO_TOKEN_AUTH', 'post') === 'basic' ? 'basic' : 'post'
+    tokenAuth: env('SSO_TOKEN_AUTH', 'post') === 'basic' ? 'basic' : 'post',
+    emailField: env('SSO_EMAIL_FIELD', 'email'),
+    nameField: env('SSO_NAME_FIELD', 'name'),
+    departmentField: env('SSO_DEPARTMENT_FIELD', 'department'),
+    roleClaim: env('SSO_ROLE_CLAIM', 'role'),
+    groupsField: env('SSO_GROUPS_FIELD', 'groups'),
+    adminGroups: env('SSO_ADMIN_GROUPS')
+      .split(/[\s,]+/)
+      .map((item) => item.trim())
+      .filter(Boolean)
   };
 }
 
@@ -88,6 +106,14 @@ async function fetchJson(url, timeoutMs = 10_000) {
 export async function getDiscovery() {
   const cfg = getSsoConfig();
   if (!cfg.enabled) throw new Error('SSO is not enabled');
+  if (cfg.mode === 'oauth2') {
+    return {
+      issuer: cfg.issuer || 'oauth2',
+      authorization_endpoint: cfg.authorizeUrl,
+      token_endpoint: cfg.tokenUrl,
+      userinfo_endpoint: cfg.userinfoUrl
+    };
+  }
   if (
     discoveryCache.data &&
     discoveryCache.issuer === cfg.issuer &&
@@ -195,8 +221,73 @@ export async function exchangeCode({ code, codeVerifier, redirectUri }) {
   if (!res.ok) {
     throw new Error(`SSO token exchange failed: HTTP ${res.status} ${String(data.error || '').slice(0, 80)}`);
   }
-  if (!data.id_token) throw new Error('SSO token response has no id_token');
+  if (cfg.mode !== 'oauth2' && !data.id_token) throw new Error('SSO token response has no id_token');
   return data;
+}
+
+function pickPath(object, path) {
+  let current = object;
+  for (const part of String(path || '').split('.').filter(Boolean)) {
+    if (!current || typeof current !== 'object') return undefined;
+    current = current[part];
+  }
+  return current;
+}
+
+function asArray(value) {
+  if (Array.isArray(value)) return value.map((item) => String(item));
+  if (typeof value === 'string') return value.split(/[\s,]+/).filter(Boolean);
+  return [];
+}
+
+export async function fetchUserinfo(accessToken) {
+  const cfg = getSsoConfig();
+  const discovery = await getDiscovery();
+  const endpoint = discovery.userinfo_endpoint || cfg.userinfoUrl;
+  if (!endpoint) throw new Error('SSO userinfo endpoint missing');
+  const res = await fetch(endpoint, {
+    headers: {
+      authorization: 'Bearer ' + accessToken,
+      accept: 'application/json'
+    },
+    signal: AbortSignal.timeout(10_000)
+  });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`SSO userinfo failed: HTTP ${res.status}`);
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error('SSO userinfo returned invalid JSON');
+  }
+}
+
+export function claimsFromUserinfo(info) {
+  const cfg = getSsoConfig();
+  const email = String(
+    pickPath(info, cfg.emailField)
+      || pickPath(info, 'email')
+      || pickPath(info, 'preferred_username')
+      || pickPath(info, 'upn')
+      || ''
+  ).trim().toLowerCase();
+  if (!email) throw new Error('userinfo has no email');
+  const name = String(pickPath(info, cfg.nameField) || pickPath(info, 'name') || email.split('@')[0]);
+  const departmentRaw = pickPath(info, cfg.departmentField);
+  const department = departmentRaw === undefined || departmentRaw === null ? '' : String(departmentRaw).trim();
+  const groups = asArray(pickPath(info, cfg.groupsField));
+  const roleValue = String(pickPath(info, cfg.roleClaim) || '').trim();
+  const admin = groups.some((group) => cfg.adminGroups.includes(group))
+    || cfg.adminGroups.includes(roleValue)
+    || roleValue === 'admin';
+  return {
+    subject: String(pickPath(info, 'sub') || pickPath(info, 'id') || email),
+    email,
+    name,
+    department: department.slice(0, 80),
+    groups,
+    role: admin ? 'admin' : 'user',
+    claims: info
+  };
 }
 
 export function emailAllowed(email) {

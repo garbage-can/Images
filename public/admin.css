@@ -1212,3 +1212,11 @@ progress.quota-mini.high::-moz-progress-bar { background: var(--danger); }
 
 .management-tab.usage-link { margin-left: auto; text-decoration: none; }
 
+
+.quota-dept-card { margin: 14px 0; padding: 14px; border: 1px solid #e3e7ef; border-radius: 12px; }
+.quota-dept-head .hint { margin: 4px 0 10px; color: #6b7688; font-size: 12.5px; }
+.quota-dept-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px dashed #e3e7ef; }
+.quota-dept-name { font-weight: 600; min-width: 110px; }
+.quota-dept-meta { flex: 1; color: #6b7688; font-size: 12.5px; }
+.quota-dept-form { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.quota-dept-form input { flex: 1; min-width: 130px; padding: 7px 9px; border: 1px solid #e3e7ef; border-radius: 8px; background: transparent; color: inherit; }
