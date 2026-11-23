@@ -118,7 +118,7 @@ async function buildCodex() {
         remainingPercent: typeof w.remaining_percent === 'number' ? w.remaining_percent : null,
         resetAt: w.reset_at || '',
         usage: w.usage || null,
-        meterAvailable: Boolean(w.meter && Object.keys(w.meter).length)
+        meterAvailable: typeof w.remaining_percent === 'number'
       }));
     } catch (err) {
       item.error = String(err.message || err).slice(0, 160);

@@ -186,8 +186,9 @@ function renderCodex(data) {
       var meta2 = el('div', 'q-meta');
       meta2.appendChild(el('span', null, '重置 ' + fmtTime(w.resetAt)));
       meta2.appendChild(el('span', null, available
-        ? (w.windowSeconds ? w.windowSeconds / 3600 + 'h 窗口' : '')
-        : ((w.usage && w.usage.tokens ? 'tokens ' + w.usage.tokens + ' · ' : '') + '仅显示限额')));
+        ? ((w.usage && w.usage.tokens ? 'tokens ' + w.usage.tokens + ' · ' : '') +
+           (w.windowSeconds ? w.windowSeconds / 3600 + 'h 窗口' : ''))
+        : '仅显示限额'));
       row.appendChild(meta2);
       card.appendChild(row);
     });
