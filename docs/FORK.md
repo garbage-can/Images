@@ -29,6 +29,12 @@
 - 实现：Authorization Code + PKCE + state/nonce，JWKS 验签，邮箱域名白名单，首次登录自动建号
 - 配置见 [`docs/SSO.md`](SSO.md)；未配置时 SSO 完全关闭，不影响密码登录
 
+## 运行参数
+
+- 全站并发 `GLOBAL_CONCURRENT_GENERATIONS=5`
+- 单用户并发 `DEFAULT_CONCURRENT_LIMIT=1`
+- 单次 1 张图（`MAX_IMAGES_PER_REQUEST=1`）
+
 ## 其他修复
 
 - 前端「系统默认接口」Key 状态一直显示「读取中」：补回 `hasApiKey` 字段
