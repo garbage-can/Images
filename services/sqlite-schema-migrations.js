@@ -378,6 +378,11 @@ function migrateOrgAndDepartmentQuotas(db) {
   `);
 }
 
+function migrateUserPhone(db) {
+  addColumnIfMissing(db, 'users', 'phone', 'phone TEXT');
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone ON users(phone) WHERE phone IS NOT NULL;');
+}
+
 export function migrateSchema(db, { nowIso, dbPath, migrationBackupDir, legacyGallery, legacyGalleryDone }) {
   db.exec(SCHEMA);
   runSchemaMigration(db, 1, 'user_abuse_columns', () => migrateUserAbuseColumns(db));
@@ -397,6 +402,7 @@ export function migrateSchema(db, { nowIso, dbPath, migrationBackupDir, legacyGa
   runSchemaMigration(db, 14, 'queue_event_log', () => migrateQueueEventLog(db));
   runSchemaMigration(db, 15, 'video_project_tables', () => migrateVideoProjectTables(db));
   runSchemaMigration(db, 16, 'org_and_department_quotas', () => migrateOrgAndDepartmentQuotas(db));
+  runSchemaMigration(db, 17, 'user_phone', () => migrateUserPhone(db));
   seedPromptSquareDefaults(db, { nowIso });
   migrateLegacyGallery(db, { legacyGallery, legacyGalleryDone, nowIso });
 }

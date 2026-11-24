@@ -21,7 +21,7 @@
 | 漫画工作流 | 已移除（UI、路由、图库入口；接口返回 404） |
 | 视频工作流 | 已移除（同上） |
 | 用量看板 | 已集成到顶部「用量」标签（仅管理员） |
-| 单点登录 | OIDC + 自研 OAuth2 两种模式，代码就绪，线上未启用 |
+| 单点登录 | 已接 ERP OAuth2（erp.8dt.com），线上已启用 |
 | ERP 账号同步 | `/api/erp/users/sync`，Bearer Token，支持全量停用 |
 | 部门额度 | 部门默认 + 个人覆盖 + 全站默认，三级优先级 |
 | 并发 | 全站 5，单用户 1，单次 1 张图 |
@@ -65,17 +65,19 @@ CPA_MGMT_KEY=...
 # ERP 服务端接口
 ERP_API_TOKEN=...
 
-# SSO（当前关闭）
-SSO_ENABLED=0
+# SSO（ERP OAuth2，已启用）
+SSO_ENABLED=1
 SSO_MODE=oauth2
-SSO_AUTHORIZE_URL=
-SSO_TOKEN_URL=
-SSO_USERINFO_URL=
+SSO_AUTHORIZE_URL=https://erp.8dt.com/supply/oauth/authorize
+SSO_TOKEN_URL=https://erp.8dt.com/supply/oauth/access_token
+SSO_USERINFO_URL=https://erp.8dt.com/supply/oauth/user/profile
 SSO_CLIENT_ID=
 SSO_CLIENT_SECRET=
 SSO_REDIRECT_URI=https://openwebui.111254.xyz/api/auth/sso/callback
 SSO_ALLOWED_DOMAINS=
 SSO_EMAIL_FIELD=email
+SSO_PHONE_FIELD=phone
+SSO_EMAIL_SUFFIX=@erp.8dt.com
 SSO_NAME_FIELD=name
 SSO_DEPARTMENT_FIELD=department
 SSO_GROUPS_FIELD=groups
@@ -139,7 +141,7 @@ GET /api/auth/sso/callback
 
 ## 7. 还没做 / 下一步
 
-1. **接 ERP 真实 OAuth2**：填 authorize/token/userinfo，`SSO_ENABLED=1`，用真实账号跑一次回调；
+1. **用真实 ERP 账号跑一次回调**：确认 ERP 已登录、回调地址已在 AUTH_IMAGEWB 注册；
 2. 如果 ERP 不接受 `code_challenge`，需要加“关闭 PKCE”的开关；
 3. 用户列表增加「部门 / 来源 / 最后登录」列，以及批量调额度、CSV 导出；
 4. 清理漫画/视频遗留的 service、DB 表和前端模块；

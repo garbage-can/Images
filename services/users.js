@@ -144,7 +144,7 @@ function normalizeExistingAvatarUrl(value) {
   }
 }
 
-export function createUserByAdmin({ username, email, password, role = 'user', department = null, source = 'local', displayName = null } = {}) {
+export function createUserByAdmin({ username, email, phone = null, password, role = 'user', department = null, source = 'local', displayName = null } = {}) {
   if (!username || !email || !password) {
     throw new Error('username, email and password are required');
   }
@@ -155,11 +155,13 @@ export function createUserByAdmin({ username, email, password, role = 'user', de
 
   if (users.findByLogin(username)) throw new Error('username already taken');
   if (users.findByLogin(email)) throw new Error('email already taken');
+  if (phone && users.findByPhone(phone)) throw new Error('phone already taken');
 
   const { hash, salt } = hashPassword(password);
   const row = users.create({
     username,
     email,
+    phone,
     passwordHash: hash,
     passwordSalt: salt,
     role,

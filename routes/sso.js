@@ -68,14 +68,17 @@ function uniqueUsername(email) {
 function findOrCreateUser(claims) {
   const cfg = getSsoConfig();
   const role = claims.role === 'admin' ? 'admin' : cfg.defaultRole;
-  const existing = usersTable.findByEmail(claims.email) || usersTable.findByLogin(claims.email);
+  const existing = (claims.phone && usersTable.findByPhone(claims.phone))
+    || usersTable.findByEmail(claims.email)
+    || usersTable.findByLogin(claims.email);
   if (existing) {
     if (existing.status === 'disabled') throw new Error('account disabled');
-    if (claims.department || claims.name) {
+    if (claims.department || claims.name || claims.phone) {
       usersTable.updateOrg(existing.id, {
         department: claims.department || existing.department,
         source: existing.source || 'sso',
-        displayName: claims.name || existing.display_name
+        displayName: claims.name || existing.display_name,
+        phone: claims.phone || existing.phone
       });
     }
     if (role === 'admin' && existing.role !== 'admin') {
@@ -87,6 +90,7 @@ function findOrCreateUser(claims) {
   return createUserByAdmin({
     username: uniqueUsername(claims.email),
     email: claims.email,
+    phone: claims.phone || null,
     password: randomToken(24),
     role,
     department: claims.department || null,
@@ -113,25 +117,28 @@ async function handleStart(req, res, url) {
   cleanupStates();
   const state = randomToken(24);
   const nonce = randomToken(24);
-  const { verifier, challenge } = pkcePair();
+  const pkce = cfg.pkce ? pkcePair() : { verifier: null, challenge: null };
   const redirectUri = buildRedirectUri(req);
   const redirectTo = safeRedirect(url.searchParams.get('redirect'));
   states.set(state, {
     nonce,
-    verifier,
+    verifier: pkce.verifier,
     redirectUri,
     redirectTo,
     expiresAt: Date.now() + STATE_TTL_MS
   });
   const authorizeUrl = new URL(discovery.authorization_endpoint);
   authorizeUrl.searchParams.set('response_type', 'code');
+  authorizeUrl.searchParams.set('grant_type', 'authorization_code');
   authorizeUrl.searchParams.set('client_id', cfg.clientId);
   authorizeUrl.searchParams.set('redirect_uri', redirectUri);
-  authorizeUrl.searchParams.set('scope', cfg.scopes);
+  if (cfg.scopes) authorizeUrl.searchParams.set('scope', cfg.scopes);
   authorizeUrl.searchParams.set('state', state);
-  authorizeUrl.searchParams.set('nonce', nonce);
-  authorizeUrl.searchParams.set('code_challenge', challenge);
-  authorizeUrl.searchParams.set('code_challenge_method', 'S256');
+  if (cfg.mode !== 'oauth2') authorizeUrl.searchParams.set('nonce', nonce);
+  if (pkce.challenge) {
+    authorizeUrl.searchParams.set('code_challenge', pkce.challenge);
+    authorizeUrl.searchParams.set('code_challenge_method', 'S256');
+  }
   redirect(res, authorizeUrl.toString());
 }
 

@@ -13,6 +13,17 @@ import { logger } from '../utils/logger.js';
 const ERP_TOKEN = String(process.env.ERP_API_TOKEN || '');
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const QUOTA_KEYS = ['daily_limit', 'monthly_limit', 'storage_limit_mb', 'concurrent_limit'];
+const EMAIL_SUFFIX = (() => {
+  const raw = String(process.env.SSO_EMAIL_SUFFIX || '@erp.local').trim();
+  if (!raw) return '@erp.local';
+  return raw.startsWith('@') ? raw.toLowerCase() : '@' + raw.toLowerCase();
+})();
+
+function normalizePhone(value) {
+  let digits = String(value || '').replace(/\D/g, '');
+  if (digits.length === 13 && digits.startsWith('86')) digits = digits.slice(2);
+  return digits;
+}
 
 function authorized(req) {
   if (!ERP_TOKEN) return false;
@@ -85,8 +96,12 @@ async function handleSync(req, res) {
 
   for (const item of items) {
     try {
-      const email = normalizeEmail(item?.email);
-      if (!EMAIL_RE.test(email)) throw new Error('invalid email');
+      const phone = normalizePhone(item?.phone);
+      let email = normalizeEmail(item?.email);
+      if (!EMAIL_RE.test(email)) {
+        if (!phone) throw new Error('email or phone required');
+        email = `${phone}${EMAIL_SUFFIX}`;
+      }
       seen.add(email);
       const role = item.role === 'admin' ? 'admin' : 'user';
       const status = item.status === 'disabled' ? 'disabled' : 'active';
@@ -95,11 +110,12 @@ async function handleSync(req, res) {
       const quota = quotaPatchFrom(item || {});
       const hasQuota = Object.keys(quota).length > 0;
 
-      let user = usersTable.findByEmail(email);
+      let user = (phone && usersTable.findByPhone(phone)) || usersTable.findByEmail(email);
       if (!user) {
         user = createUserByAdmin({
           username: uniqueUsername(email),
           email,
+          phone: phone || null,
           password: randomBytes(24).toString('base64url'),
           role,
           department,
@@ -124,11 +140,13 @@ async function handleSync(req, res) {
       const org = usersTable.updateOrg(user.id, {
         department: department === undefined ? user.department : department,
         source: 'erp',
-        displayName: displayName === undefined ? user.display_name : displayName
+        displayName: displayName === undefined ? user.display_name : displayName,
+        phone: phone || user.phone
       });
       if (
         org.department !== user.department ||
         org.display_name !== user.display_name ||
+        org.phone !== user.phone ||
         org.source !== user.source
       ) {
         changed = true;
@@ -140,7 +158,7 @@ async function handleSync(req, res) {
       if (changed) result.updated += 1;
       else result.unchanged += 1;
     } catch (err) {
-      result.errors.push({ email: normalizeEmail(item?.email), error: String(err.message || err).slice(0, 160) });
+      result.errors.push({ email: normalizeEmail(item?.email), phone: normalizePhone(item?.phone), error: String(err.message || err).slice(0, 160) });
     }
   }
 

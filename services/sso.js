@@ -37,7 +37,8 @@ export function getSsoConfig() {
     issuer,
     clientId: env('SSO_CLIENT_ID'),
     clientSecret: env('SSO_CLIENT_SECRET'),
-    scopes: env('SSO_SCOPES', 'openid profile email'),
+    scopes: process.env.SSO_SCOPES === undefined ? 'openid profile email' : String(process.env.SSO_SCOPES).trim(),
+    pkce: envFlag('SSO_PKCE', true),
     redirectUri: env('SSO_REDIRECT_URI'),
     authorizeUrl,
     tokenUrl,
@@ -48,6 +49,12 @@ export function getSsoConfig() {
     buttonLabel: env('SSO_BUTTON_LABEL', '使用公司账号登录'),
     tokenAuth: env('SSO_TOKEN_AUTH', 'post') === 'basic' ? 'basic' : 'post',
     emailField: env('SSO_EMAIL_FIELD', 'email'),
+    phoneField: env('SSO_PHONE_FIELD', 'phone'),
+    emailSuffix: (() => {
+      const raw = env('SSO_EMAIL_SUFFIX', '@erp.local').trim();
+      if (!raw) return '@erp.local';
+      return raw.startsWith('@') ? raw.toLowerCase() : '@' + raw.toLowerCase();
+    })(),
     nameField: env('SSO_NAME_FIELD', 'name'),
     departmentField: env('SSO_DEPARTMENT_FIELD', 'department'),
     roleClaim: env('SSO_ROLE_CLAIM', 'role'),
@@ -191,9 +198,9 @@ export async function exchangeCode({ code, codeVerifier, redirectUri }) {
     grant_type: 'authorization_code',
     code,
     redirect_uri: redirectUri,
-    client_id: cfg.clientId,
-    code_verifier: codeVerifier
+    client_id: cfg.clientId
   });
+  if (codeVerifier) body.set('code_verifier', codeVerifier);
   const headers = {
     'content-type': 'application/x-www-form-urlencoded',
     accept: 'application/json'
@@ -261,32 +268,51 @@ export async function fetchUserinfo(accessToken) {
   }
 }
 
+function normalizePhone(value) {
+  let digits = String(value || '').replace(/\D/g, '');
+  if (digits.length === 13 && digits.startsWith('86')) digits = digits.slice(2);
+  return digits;
+}
+
 export function claimsFromUserinfo(info) {
   const cfg = getSsoConfig();
-  const email = String(
-    pickPath(info, cfg.emailField)
-      || pickPath(info, 'email')
-      || pickPath(info, 'preferred_username')
-      || pickPath(info, 'upn')
+  const source = info && typeof info.data === 'object' && info.data ? { ...info, ...info.data } : info;
+  const rawEmail = String(
+    pickPath(source, cfg.emailField)
+      || pickPath(source, 'email')
+      || pickPath(source, 'preferred_username')
+      || pickPath(source, 'upn')
       || ''
   ).trim().toLowerCase();
-  if (!email) throw new Error('userinfo has no email');
-  const name = String(pickPath(info, cfg.nameField) || pickPath(info, 'name') || email.split('@')[0]);
-  const departmentRaw = pickPath(info, cfg.departmentField);
+  const phone = normalizePhone(
+    pickPath(source, cfg.phoneField)
+      || pickPath(source, 'phone')
+      || pickPath(source, 'mobile')
+      || ''
+  );
+  const email = rawEmail || (phone ? `${phone}${cfg.emailSuffix}` : '');
+  if (!email) throw new Error('userinfo has no email or phone');
+  const name = String(
+    pickPath(source, cfg.nameField)
+      || pickPath(source, 'name')
+      || email.split('@')[0]
+  );
+  const departmentRaw = pickPath(source, cfg.departmentField);
   const department = departmentRaw === undefined || departmentRaw === null ? '' : String(departmentRaw).trim();
-  const groups = asArray(pickPath(info, cfg.groupsField));
-  const roleValue = String(pickPath(info, cfg.roleClaim) || '').trim();
+  const groups = asArray(pickPath(source, cfg.groupsField));
+  const roleValue = String(pickPath(source, cfg.roleClaim) || '').trim();
   const admin = groups.some((group) => cfg.adminGroups.includes(group))
     || cfg.adminGroups.includes(roleValue)
     || roleValue === 'admin';
   return {
-    subject: String(pickPath(info, 'sub') || pickPath(info, 'id') || email),
+    subject: String(pickPath(source, 'sub') || pickPath(source, 'id') || phone || email),
     email,
+    phone: phone || null,
     name,
     department: department.slice(0, 80),
     groups,
     role: admin ? 'admin' : 'user',
-    claims: info
+    claims: source
   };
 }
 

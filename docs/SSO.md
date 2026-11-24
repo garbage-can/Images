@@ -79,6 +79,8 @@ SSO_CLIENT_ID=image-studio
 SSO_CLIENT_SECRET=...
 SSO_SCOPES=openid profile email
 SSO_EMAIL_FIELD=email
+SSO_PHONE_FIELD=phone
+SSO_EMAIL_SUFFIX=@erp.8dt.com
 SSO_NAME_FIELD=name
 SSO_DEPARTMENT_FIELD=department
 SSO_GROUPS_FIELD=groups
@@ -95,3 +97,8 @@ SSO_ADMIN_GROUPS=img-admin
 | 组 | `groups` | 命中 `SSO_ADMIN_GROUPS` 自动给 admin |
 
 字段支持点路径，例如 `data.profile.email`。
+
+
+### 只有手机号时
+
+ERP profile 没有 email 时，平台会用 `phone + SSO_EMAIL_SUFFIX` 生成内部邮箱（例如 `13800000001@erp.8dt.com`），并把手机号存到 `users.phone`，用于后续按手机号匹配。

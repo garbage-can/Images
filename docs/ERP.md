@@ -54,7 +54,9 @@ POST /api/erp/users/sync
 ```
 
 - `full: true` 时，所有 `source=erp` 且不在本次列表里的账号会被停用（离职处理）；
-- `monthly_limit` / `daily_limit` 省略表示不动，`null` 表示清除个人覆盖、回落到部门默认；
+- `email` 和 `phone` 至少给一个；只有手机号时会生成内部邮箱 `<phone>@erp.8dt.com`。
+
+`monthly_limit` / `daily_limit` 省略表示不动，`null` 表示清除个人覆盖、回落到部门默认；
 - 返回：
 
 ```json
