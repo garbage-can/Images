@@ -429,6 +429,12 @@ export function recordAttempt(userId, { calls = 1, promptOptimizations = 0 } = {
   usageDaily.bump(userId, todayUtc(), { calls, images: 0, bytes: 0, promptOptimizations });
 }
 
+// 提示词优化只记统计次数，不占调用额度。
+export function recordPromptOptimization(userId) {
+  if (!userId) return;
+  usageDaily.bump(userId, todayUtc(), { calls: 0, images: 0, bytes: 0, promptOptimizations: 1 });
+}
+
 export function refundAttempt(userId, { calls = 0, promptOptimizations = 0 } = {}) {
   if (!userId) return;
   usageDaily.refund(userId, todayUtc(), { calls, promptOptimizations });

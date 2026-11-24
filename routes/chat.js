@@ -12,6 +12,7 @@ import {
   assertCanGenerate,
   recordAttempt,
   recordFailure,
+  recordPromptOptimization,
   refundAttempt,
 } from '../services/quota.js';
 
@@ -207,8 +208,9 @@ function chatQuotaMeta(body = {}) {
   };
 }
 
-function checkChatQuota(userInfo, { model, usingSystemDefault = false } = {}) {
+function checkChatQuota(userInfo, { model, usingSystemDefault = false, promptOptimize = false } = {}) {
   if (!usingSystemDefault) return { ok: true, cost: 0 };
+  if (promptOptimize) return { ok: true, cost: 0 };
   if (!userInfo?.id || userInfo.role === 'admin') return { ok: true, cost: CHAT_QUOTA_COST };
   const check = assertCanGenerate(userInfo.id, {
     n: CHAT_QUOTA_COST,
@@ -225,8 +227,13 @@ function checkChatQuota(userInfo, { model, usingSystemDefault = false } = {}) {
 }
 
 function recordChatQuotaAttempt(userInfo, { usingSystemDefault = false, promptOptimizations = 0 } = {}) {
-  if (!usingSystemDefault || !userInfo?.id) return;
-  recordAttempt(userInfo.id, { calls: CHAT_QUOTA_COST, promptOptimizations });
+  if (!usingSystemDefault || !userInfo?.id) return false;
+  if (promptOptimizations > 0) {
+    recordPromptOptimization(userInfo.id);
+    return false;
+  }
+  recordAttempt(userInfo.id, { calls: CHAT_QUOTA_COST });
+  return true;
 }
 
 function recordChatQuotaFailure(userInfo, { reserved = false, usingSystemDefault = false, promptOptimizations = 0 } = {}) {
@@ -259,7 +266,11 @@ export async function handleChat(req, res) {
 
     // 仅系统默认接口占用平台额度；个人自定义接口使用用户自己的 Key，不受管理端额度限制。
     // 管理员延续生图接口语义（不拦截系统默认接口请求，但仍记录用量便于审计）。
-    const quotaCheck = checkChatQuota(req.session.user, { model: payload.model, usingSystemDefault });
+    const quotaCheck = checkChatQuota(req.session.user, {
+      model: payload.model,
+      usingSystemDefault,
+      promptOptimize: quotaMeta.promptOptimizations > 0
+    });
     if (!quotaCheck.ok) {
       return sendJson(res, 429, { error: quotaCheck.message, code: quotaCheck.code });
     }
@@ -274,8 +285,7 @@ export async function handleChat(req, res) {
       return sendJson(res, 429, { error: slot.message, code: 'chat_concurrent_limit_exceeded' });
     }
     releaseChatSlot = slot.release;
-    recordChatQuotaAttempt(req.session.user, { usingSystemDefault, ...quotaMeta });
-    quotaReserved = usingSystemDefault;
+    quotaReserved = recordChatQuotaAttempt(req.session.user, { usingSystemDefault, ...quotaMeta });
 
     logger.info('chat.completion.request', {
       targetUrl,

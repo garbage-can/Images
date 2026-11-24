@@ -154,13 +154,14 @@ test('system default chat requests use managed quota while custom chat bypasses 
 
   const first = await callChat(handleChat, body, user);
   assert.equal(first.statusCode, 200);
-  assert.equal(quota.usageSnapshot(user.id).today.calls, 1);
+  assert.equal(quota.usageSnapshot(user.id).today.calls, 0);
   assert.equal(quota.usageSnapshot(user.id).today.promptOptimizations, 1);
 
   const second = await callChat(handleChat, body, user);
-  assert.equal(second.statusCode, 429);
-  assert.equal(second.body.code, 'daily_limit_exceeded');
-  assert.equal(upstreamHits, 1);
+  assert.equal(second.statusCode, 200);
+  assert.equal(quota.usageSnapshot(user.id).today.calls, 0);
+  assert.equal(quota.usageSnapshot(user.id).today.promptOptimizations, 2);
+  assert.equal(upstreamHits, 2);
 
   const concurrentUser = auth.register({
     username: 'chat_quota_race',
@@ -176,17 +177,16 @@ test('system default chat requests use managed quota while custom chat bypasses 
   assert.ok(held, 'first concurrent request should reach upstream and stay pending');
 
   const secondConcurrent = await callChat(handleChat, concurrentBody, concurrentUser);
-  assert.equal(secondConcurrent.statusCode, 429);
-  assert.equal(secondConcurrent.body.code, 'daily_limit_exceeded');
-  assert.equal(upstreamHits, 2);
+  assert.equal(secondConcurrent.statusCode, 200);
+  assert.equal(upstreamHits, 4);
 
   sendChatOk(heldChatResponse);
   heldChatResponse = null;
   const firstConcurrentResult = await firstConcurrent;
   assert.equal(firstConcurrentResult.statusCode, 200);
-  assert.equal(quota.usageSnapshot(concurrentUser.id).today.calls, 1);
-  assert.equal(quota.usageSnapshot(concurrentUser.id).today.promptOptimizations, 1);
-  assert.equal(upstreamHits, 2);
+  assert.equal(quota.usageSnapshot(concurrentUser.id).today.calls, 0);
+  assert.equal(quota.usageSnapshot(concurrentUser.id).today.promptOptimizations, 2);
+  assert.equal(upstreamHits, 4);
 
   const customUser = auth.register({
     username: 'chat_custom_bypass',
@@ -203,7 +203,7 @@ test('system default chat requests use managed quota while custom chat bypasses 
   assert.equal(custom.statusCode, 200);
   assert.equal(quota.usageSnapshot(customUser.id).today.calls, 1);
   assert.equal(quota.usageSnapshot(customUser.id).today.promptOptimizations, 0);
-  assert.equal(upstreamHits, 3);
+  assert.equal(upstreamHits, 5);
 
   const storageFullUser = auth.register({
     username: 'chat_storage_full',
@@ -227,7 +227,7 @@ test('system default chat requests use managed quota while custom chat bypasses 
   });
   const storageFullChat = await callChat(handleChat, body, storageFullUser);
   assert.equal(storageFullChat.statusCode, 200);
-  assert.equal(quota.usageSnapshot(storageFullUser.id).today.calls, 1);
+  assert.equal(quota.usageSnapshot(storageFullUser.id).today.calls, 0);
   assert.equal(quota.usageSnapshot(storageFullUser.id).today.promptOptimizations, 1);
-  assert.equal(upstreamHits, 4);
+  assert.equal(upstreamHits, 6);
 });
