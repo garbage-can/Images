@@ -254,9 +254,10 @@ export async function fetchUserinfo(accessToken) {
   const discovery = await getDiscovery();
   const endpoint = discovery.userinfo_endpoint || cfg.userinfoUrl;
   if (!endpoint) throw new Error('SSO userinfo endpoint missing');
-  const res = await fetch(endpoint, {
+  const url = new URL(endpoint);
+  url.searchParams.set('access_token', accessToken);
+  const res = await fetch(url, {
     headers: {
-      authorization: 'Bearer ' + accessToken,
       accept: 'application/json'
     },
     signal: AbortSignal.timeout(10_000)
