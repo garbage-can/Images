@@ -11,6 +11,7 @@
   - `Origin` 或 `Referer` 与当前 `Host` 同源
 - 已登录 session 的非安全方法还需要携带 `/api/auth/me`、登录或注册响应返回的 `csrfToken`：`X-CSRF-Token: <csrfToken>`。
 - 除 `/api/auth/*` 外，业务接口都要求已登录。
+- `/api/erp/*` 是例外：使用 `Authorization: Bearer <ERP_API_TOKEN>`，不依赖浏览器 session/CSRF，供 ERP 后端调用。
 - `/api/admin/*` 以及 `/api/users*` 要求当前用户为 `admin`。
 - 请求体大小由 `MAX_JSON_BODY_BYTES` 限制；上传类 multipart 由 `MAX_MULTIPART_BODY_BYTES` 限制。
 
@@ -29,6 +30,63 @@
 | POST | `/api/auth/logout` | 公开 + CSRF | 销毁当前 session。 |
 | GET | `/api/auth/registration-policy` | 公开 | 返回当前注册策略摘要，供登录页决定是否展示邀请码入口。 |
 | GET | `/api/auth/me` | 公开 | 返回当前登录用户；未登录时返回 401。 |
+
+## 单点登录（SSO）
+
+| 方法 | 路径 | 权限 | 说明 |
+| --- | --- | --- | --- |
+| GET | `/api/auth/sso/config` | 公开 | 返回 `{ enabled, label, loginUrl }`，登录页据此显示 SSO 按钮。 |
+| GET | `/api/auth/sso/start` | 公开 | 生成 state/nonce（OIDC 还包括 PKCE），302 到 IdP/ERP 授权页。 |
+| GET | `/api/auth/sso/callback` | 公开 | 校验 state、用 code 换 token、读取 userinfo/ID Token、建立 session。 |
+
+支持两种模式：
+
+- `SSO_MODE=oidc`：标准 OIDC，discovery + JWKS 验签；
+- `SSO_MODE=oauth2`：自研 ERP，authorize/token/userinfo 三端点，PKCE 可通过 `SSO_PKCE=0` 关闭。
+
+当前 ERP 配置：`AUTH_IMAGEWB`，授权地址 `https://erp.8dt.com/supply/oauth/authorize`，回调：
+
+```
+https://openwebui.111254.xyz/api/auth/sso/callback
+```
+
+ERP profile 没有 email 时，按手机号生成内部邮箱 `<phone>@erp.8dt.com`，并写入 `users.phone`。
+
+## ERP 服务端接口
+
+统一请求头：
+
+```http
+Authorization: Bearer <ERP_API_TOKEN>
+Content-Type: application/json
+```
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/api/erp/users` | 用户列表；支持 `department`、`status` 过滤。 |
+| POST | `/api/erp/users/sync` | 批量新增/更新/停用；`full: true` 时停用未出现在列表中的 `source=erp` 账号。 |
+| PUT | `/api/erp/users/:email/quota` | 设置个人额度。 |
+
+同步请求：
+
+```json
+{
+  "full": false,
+  "users": [
+    {
+      "email": "zhangsan@corp.com",
+      "phone": "13800000000",
+      "name": "张三",
+      "department": "设计部",
+      "status": "active",
+      "role": "user",
+      "monthly_limit": 10
+    }
+  ]
+}
+```
+
+`email` 与 `phone` 至少给一个；只有手机号时使用 `<phone>@erp.8dt.com`。
 
 ## 当前用户
 
@@ -100,18 +158,6 @@
 
 Prompt Square `meta.previewImages` 仅保留本地提示词示例图路径或无凭据的 HTTPS 外部图片 URL。
 
-## 漫画与视频工作流
-
-| 方法 | 路径 | 权限 | 说明 |
-| --- | --- | --- | --- |
-| GET/POST | `/api/comic-projects` | 登录 | 列表 / 创建漫画项目；列表响应只返回故事与分镜预览，并通过 `storyLength`、`storyTruncated`、`storyboardLength`、`storyboardTruncated` 标识裁剪状态。 |
-| GET/PUT/PATCH/DELETE | `/api/comic-projects/:id` | 登录 | 读取、更新、删除漫画项目；详情响应保留完整故事与分镜。 |
-| POST | `/api/comic-storyboards` | 登录 | 创建分镜生成任务。 |
-| GET/POST | `/api/video-projects` | 登录 | 列表 / 创建视频项目；视频项目保存提示词、全局配置、参考图、关键帧规划和项目内图片。 |
-| GET/PUT/PATCH/DELETE | `/api/video-projects/:id` | 登录 | 读取、更新、删除视频项目；详情响应包含参考图、关键帧图、帧间图和关联任务。 |
-| POST | `/api/video-projects/:id/references` | 登录 | 上传一张或多张视频项目参考图。 |
-| POST | `/api/video-storyboards` | 登录 | 创建视频关键帧规划任务。 |
-
 ## 管理后台
 
 | 方法 | 路径 | 权限 | 说明 |
@@ -121,8 +167,12 @@ Prompt Square `meta.previewImages` 仅保留本地提示词示例图路径或无
 | POST | `/api/users/:id/reset-password` | 管理员 | 重置用户密码。 |
 | POST | `/api/users/:id/logout` | 管理员 | 强制用户所有 session 下线。 |
 | GET/PUT | `/api/admin/quota/defaults` | 管理员 | 读取/保存默认额度。 |
+| GET | `/api/admin/quota/users` | 管理员 | 所有用户额度 + 用量列表。 |
 | GET/PUT/DELETE | `/api/admin/quota/users/:id` | 管理员 | 读取、修改或清除单用户额度覆盖。 |
 | POST | `/api/admin/quota/users/:id/reset` | 管理员 | 重置用户今日或本月用量。 |
+| GET | `/api/admin/quota/departments` | 管理员 | 部门默认额度列表。 |
+| GET/PUT/DELETE | `/api/admin/quota/departments/:name` | 管理员 | 读取、设置或删除部门默认额度。 |
+| GET | `/api/admin/usage?hours=5\|24\|72` | 管理员 | 用量看板聚合：CPA 请求、Codex 额度窗口、Image Studio 任务和图片统计。 |
 | GET/PUT | `/api/admin/registration` 或 `/api/admin/registration/settings` | 管理员 | 读取/保存注册策略。 |
 | POST | `/api/admin/registration/invites` | 管理员 | 生成邀请码。 |
 | POST/DELETE | `/api/admin/registration/invites/reset` | 管理员 | 重置邀请码。 |
@@ -130,6 +180,17 @@ Prompt Square `meta.previewImages` 仅保留本地提示词示例图路径或无
 | POST/DELETE | `/api/admin/registration/redemptions/cleanup` | 管理员 | 清理邀请码兑换记录，可选同步停用未使用旧邀请码。 |
 | POST | `/api/client-logs` | 登录 | 同步前端客户端日志批次；服务端按用户和 IP 限流。 |
 | GET | `/api/admin/client-logs` | 管理员 | 查询前端同步的客户端日志；列表响应会按预算裁剪超大 `meta`，并返回 `metaLength` / `metaTruncated` 标识。 |
+
+部门默认额度示例：
+
+```http
+PUT /api/admin/quota/departments/设计部
+Content-Type: application/json
+
+{ "monthly_limit": 10, "daily_limit": 10 }
+```
+
+生效顺序：个人覆盖 > 部门默认 > 全站默认。
 
 ## 常见错误码
 
