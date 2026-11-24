@@ -18,7 +18,7 @@ export function profileMenuHtml(user = {}) {
       ${avatarUrl
         ? `<img class="user-avatar" src="${escapeHtml(avatarUrl)}" alt="" loading="lazy" referrerpolicy="no-referrer" />`
         : `<span class="user-avatar user-avatar-text">${escapeHtml(avatarInitial(user))}</span>`}
-      <span class="user-name">${escapeHtml(user.username || user.email || t('profile.menu.userFallback'))}</span>
+      <span class="user-name">${escapeHtml(user.display_name || user.displayName || user.username || user.email || t('profile.menu.userFallback'))}</span>
       <span class="user-caret" aria-hidden="true">▾</span>
     </button>
     <div class="user-menu-dropdown" role="menu" hidden>

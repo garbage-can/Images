@@ -189,6 +189,7 @@ async function handleCallback(req, res, url) {
     }
     if (!emailAllowed(claims.email)) return fail(res, 'domain_not_allowed', claims.email);
     const user = findOrCreateUser(claims);
+    usersTable.touchLogin(user.id);
     const { sessionId } = createSession({
       userId: user.id,
       ua: userAgent(req),
