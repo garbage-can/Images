@@ -151,12 +151,25 @@ async function handleCallback(req, res, url) {
   const state = queryState || cookieState;
   const code = String(url.searchParams.get('code') || '');
   clearSsoStateCookie(res);
-  const stored = states.get(state);
+  let stored = states.get(state);
   states.delete(state);
+  let stateless = false;
   if (!stored || stored.expiresAt <= Date.now()) {
-    return fail(res, 'state_expired', `query=${queryState ? 'y' : 'n'} cookie=${cookieState ? 'y' : 'n'}`);
+    // 自研 ERP 不回传 state，部分浏览器/网关又可能丢 Cookie；OAuth2 模式下允许无状态回调。
+    if (cfg.mode === 'oauth2' && code) {
+      stateless = true;
+      stored = {
+        verifier: null,
+        redirectUri: buildRedirectUri(req),
+        redirectTo: '/',
+        expiresAt: Date.now() + STATE_TTL_MS
+      };
+    } else {
+      return fail(res, 'state_expired', `query=${queryState ? 'y' : 'n'} cookie=${cookieState ? 'y' : 'n'}`);
+    }
   }
   if (!code) return fail(res, 'missing_code', '');
+  logger.info('auth.sso.callback', { mode: cfg.mode, stateless, hasState: Boolean(state) });
   try {
     const tokens = await exchangeCode({
       code,
