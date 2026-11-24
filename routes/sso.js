@@ -2,7 +2,7 @@
 // 流程：config -> start（302 到 IdP）-> callback（换 token、校验、建会话）。
 
 import { sendJson, sendMethodNotAllowed } from '../utils/http.js';
-import { setSessionCookie } from '../utils/cookies.js';
+import { setSessionCookie, parseCookies, setSsoStateCookie, clearSsoStateCookie } from '../utils/cookies.js';
 import { clientIp, userAgent } from '../utils/request.js';
 import { logger } from '../utils/logger.js';
 import { users as usersTable } from '../services/db.js';
@@ -127,6 +127,7 @@ async function handleStart(req, res, url) {
     redirectTo,
     expiresAt: Date.now() + STATE_TTL_MS
   });
+  setSsoStateCookie(res, state);
   const authorizeUrl = new URL(discovery.authorization_endpoint);
   authorizeUrl.searchParams.set('response_type', 'code');
   authorizeUrl.searchParams.set('grant_type', 'authorization_code');
@@ -145,11 +146,16 @@ async function handleStart(req, res, url) {
 async function handleCallback(req, res, url) {
   const cfg = getSsoConfig();
   if (!cfg.enabled) return fail(res, 'sso_disabled', '');
-  const state = String(url.searchParams.get('state') || '');
+  const queryState = String(url.searchParams.get('state') || '');
+  const cookieState = String(parseCookies(req).sso_state || '');
+  const state = queryState || cookieState;
   const code = String(url.searchParams.get('code') || '');
+  clearSsoStateCookie(res);
   const stored = states.get(state);
   states.delete(state);
-  if (!stored || stored.expiresAt <= Date.now()) return fail(res, 'state_expired', '');
+  if (!stored || stored.expiresAt <= Date.now()) {
+    return fail(res, 'state_expired', `query=${queryState ? 'y' : 'n'} cookie=${cookieState ? 'y' : 'n'}`);
+  }
   if (!code) return fail(res, 'missing_code', '');
   try {
     const tokens = await exchangeCode({

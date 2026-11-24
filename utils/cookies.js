@@ -58,6 +58,32 @@ export function clearSessionCookie(res) {
   appendSetCookie(res, parts.join('; '));
 }
 
+const SSO_STATE_COOKIE = 'sso_state';
+
+export function setSsoStateCookie(res, state) {
+  const parts = [
+    `${SSO_STATE_COOKIE}=${encodeURIComponent(state)}`,
+    'HttpOnly',
+    'SameSite=Lax',
+    'Path=/api/auth/sso',
+    'Max-Age=600'
+  ];
+  if (isSecure()) parts.push('Secure');
+  appendSetCookie(res, parts.join('; '));
+}
+
+export function clearSsoStateCookie(res) {
+  const parts = [
+    `${SSO_STATE_COOKIE}=`,
+    'HttpOnly',
+    'SameSite=Lax',
+    'Path=/api/auth/sso',
+    'Max-Age=0'
+  ];
+  if (isSecure()) parts.push('Secure');
+  appendSetCookie(res, parts.join('; '));
+}
+
 function appendSetCookie(res, value) {
   const existing = res.getHeader('set-cookie');
   if (!existing) {
