@@ -312,7 +312,7 @@ test('runImageGeneration rejects malformed 200 responses and records managed fai
         assert.match(result.body.error, /no usable image data/i);
 
         const usage = quota.usageSnapshot(routeUser.id);
-        assert.equal(usage.today.calls, 1);
+        assert.equal(usage.today.calls, 0);
         assert.equal(usage.today.images, 0);
         assert.equal(usage.today.fails, 1);
       } finally {

@@ -12,6 +12,7 @@ import {
   assertCanGenerate,
   recordAttempt,
   recordFailure,
+  refundAttempt,
 } from '../services/quota.js';
 
 const DEFAULT_CHAT_RATE_LIMIT_MAX_PER_MINUTE = 20;
@@ -228,9 +229,12 @@ function recordChatQuotaAttempt(userInfo, { usingSystemDefault = false, promptOp
   recordAttempt(userInfo.id, { calls: CHAT_QUOTA_COST, promptOptimizations });
 }
 
-function recordChatQuotaFailure(userInfo, { reserved = false, usingSystemDefault = false } = {}) {
+function recordChatQuotaFailure(userInfo, { reserved = false, usingSystemDefault = false, promptOptimizations = 0 } = {}) {
   if (!usingSystemDefault || !userInfo?.id) return;
-  recordFailure(userInfo.id, { calls: reserved ? 0 : CHAT_QUOTA_COST });
+  if (reserved) {
+    refundAttempt(userInfo.id, { calls: CHAT_QUOTA_COST, promptOptimizations });
+  }
+  recordFailure(userInfo.id);
 }
 
 export async function handleChat(req, res) {
@@ -241,6 +245,7 @@ export async function handleChat(req, res) {
   let body = {};
   let releaseChatSlot = null;
   let quotaReserved = false;
+  let quotaMeta = { purpose: '', promptOptimizations: 0 };
   try {
     body = await readJsonBody(req);
     body = prepareChatRequestBody(body);
@@ -248,7 +253,7 @@ export async function handleChat(req, res) {
 
     const requestConfig = resolveChatRequest(body);
     const { apiKey, targetUrl, bodyForPayload, usingSystemDefault } = requestConfig;
-    const quotaMeta = chatQuotaMeta(body);
+    quotaMeta = chatQuotaMeta(body);
     await assertAllowedUpstreamUrl(targetUrl);
     const payload = buildChatPayload(bodyForPayload);
 
@@ -295,7 +300,11 @@ export async function handleChat(req, res) {
       logger.error('chat.completion.failed', {
         status, durationMs, model: payload.model, error: errMsg
       });
-      recordChatQuotaFailure(req.session.user, { reserved: quotaReserved, usingSystemDefault });
+      recordChatQuotaFailure(req.session.user, {
+        reserved: quotaReserved,
+        usingSystemDefault,
+        promptOptimizations: quotaMeta.promptOptimizations
+      });
       return sendJson(res, status, { error: errMsg });
     }
 
@@ -305,7 +314,11 @@ export async function handleChat(req, res) {
     return sendJson(res, 200, data);
   } catch (error) {
     if (quotaReserved) {
-      recordChatQuotaFailure(req.session.user, { reserved: true, usingSystemDefault: true });
+      recordChatQuotaFailure(req.session.user, {
+        reserved: true,
+        usingSystemDefault: true,
+        promptOptimizations: quotaMeta.promptOptimizations
+      });
     }
     logger.warn('chat.completion.rejected', {
       durationMs: Date.now() - started,

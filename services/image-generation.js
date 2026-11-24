@@ -523,7 +523,7 @@ export async function runImageGeneration(body, userInfo, { signal, onProgress, t
       upstreamRequestCount
     });
     if (usingSystemDefault) {
-      recordFailure(userInfo?.id, { calls: requestedImages });
+      recordFailure(userInfo?.id);
     }
     return { status, body: { error: errMsg } };
   }
@@ -542,7 +542,7 @@ export async function runImageGeneration(body, userInfo, { signal, onProgress, t
       upstreamRequestCount
     });
     if (usingSystemDefault) {
-      recordFailure(userInfo?.id, { calls: requestedImages });
+      recordFailure(userInfo?.id);
     }
     return { status: 502, body: { error: errMsg, code: 'invalid_image_response' } };
   }

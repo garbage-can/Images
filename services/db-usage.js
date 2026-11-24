@@ -139,6 +139,15 @@ export function createUsageDailyRepository({ open }) {
         `).run(userId, day, calls, images, bytes, promptOptimizations, fails);
       }
     },
+    // 回退一次预占（例如上游失败），避免把失败请求算进调用额度。
+    refund(userId, day, { calls = 0, promptOptimizations = 0 } = {}) {
+      open().prepare(`
+        UPDATE usage_daily SET
+          call_count = MAX(0, call_count - ?),
+          prompt_optimize_count = MAX(0, prompt_optimize_count - ?)
+        WHERE user_id = ? AND day = ?
+      `).run(calls, promptOptimizations, userId, day);
+    },
     // 区间聚合：[fromDay, toDay] 含端点，YYYY-MM-DD。
     sum(userId, fromDay, toDay) {
       const row = open().prepare(`
