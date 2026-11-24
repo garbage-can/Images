@@ -176,12 +176,16 @@ async function handleCallback(req, res, url) {
       codeVerifier: stored.verifier,
       redirectUri: stored.redirectUri
     });
+    const tokenData = tokens.data && typeof tokens.data === 'object'
+      ? { ...tokens.data, ...tokens }
+      : tokens;
     let claims;
     if (cfg.mode === 'oauth2') {
-      const info = await fetchUserinfo(tokens.access_token);
+      if (!tokenData.access_token) throw new Error('token response has no access_token');
+      const info = await fetchUserinfo(tokenData.access_token);
       claims = claimsFromUserinfo(info);
     } else {
-      claims = await verifyIdToken(tokens.id_token, { nonce: stored.nonce });
+      claims = await verifyIdToken(tokenData.id_token, { nonce: stored.nonce });
     }
     if (!emailAllowed(claims.email)) return fail(res, 'domain_not_allowed', claims.email);
     const user = findOrCreateUser(claims);

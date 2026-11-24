@@ -172,7 +172,7 @@ Prompt Square `meta.previewImages` 仅保留本地提示词示例图路径或无
 | POST | `/api/admin/quota/users/:id/reset` | 管理员 | 重置用户今日或本月用量。 |
 | GET | `/api/admin/quota/departments` | 管理员 | 部门默认额度列表。 |
 | GET/PUT/DELETE | `/api/admin/quota/departments/:name` | 管理员 | 读取、设置或删除部门默认额度。 |
-| GET | `/api/admin/usage?hours=5\|24\|72` | 管理员 | 用量看板聚合：CPA 请求、Codex 额度窗口、Image Studio 任务和图片统计。 |
+| GET | `/api/admin/usage` | 管理员 | 用量看板聚合；查询参数 `hours=5/24/72`。 |
 | GET/PUT | `/api/admin/registration` 或 `/api/admin/registration/settings` | 管理员 | 读取/保存注册策略。 |
 | POST | `/api/admin/registration/invites` | 管理员 | 生成邀请码。 |
 | POST/DELETE | `/api/admin/registration/invites/reset` | 管理员 | 重置邀请码。 |

@@ -228,7 +228,9 @@ export async function exchangeCode({ code, codeVerifier, redirectUri }) {
   if (!res.ok) {
     throw new Error(`SSO token exchange failed: HTTP ${res.status} ${String(data.error || '').slice(0, 80)}`);
   }
-  if (cfg.mode !== 'oauth2' && !data.id_token) throw new Error('SSO token response has no id_token');
+  if (cfg.mode !== 'oauth2' && !data.id_token && !(data.data && data.data.id_token)) {
+    throw new Error('SSO token response has no id_token');
+  }
   return data;
 }
 
