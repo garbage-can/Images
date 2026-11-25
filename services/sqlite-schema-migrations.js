@@ -383,6 +383,11 @@ function migrateUserPhone(db) {
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone ON users(phone) WHERE phone IS NOT NULL;');
 }
 
+function migrateUserEmployeeNo(db) {
+  addColumnIfMissing(db, 'users', 'employee_no', 'employee_no TEXT');
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_employee_no ON users(employee_no) WHERE employee_no IS NOT NULL AND employee_no <> \'\';');
+}
+
 export function migrateSchema(db, { nowIso, dbPath, migrationBackupDir, legacyGallery, legacyGalleryDone }) {
   db.exec(SCHEMA);
   runSchemaMigration(db, 1, 'user_abuse_columns', () => migrateUserAbuseColumns(db));
@@ -403,6 +408,7 @@ export function migrateSchema(db, { nowIso, dbPath, migrationBackupDir, legacyGa
   runSchemaMigration(db, 15, 'video_project_tables', () => migrateVideoProjectTables(db));
   runSchemaMigration(db, 16, 'org_and_department_quotas', () => migrateOrgAndDepartmentQuotas(db));
   runSchemaMigration(db, 17, 'user_phone', () => migrateUserPhone(db));
+  runSchemaMigration(db, 18, 'user_employee_no', () => migrateUserEmployeeNo(db));
   seedPromptSquareDefaults(db, { nowIso });
   migrateLegacyGallery(db, { legacyGallery, legacyGalleryDone, nowIso });
 }

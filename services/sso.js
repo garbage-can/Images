@@ -2,6 +2,7 @@
 // 配置全部来自环境变量，未配置时 SSO 关闭，不影响本地账号登录。
 
 import { createHash, createPublicKey, randomBytes, verify as verifySignature } from 'node:crypto';
+import { normalizeEmployeeNo } from '../utils/employee-no.js';
 
 const DISCOVERY_TTL_MS = 10 * 60_000;
 const JWKS_TTL_MS = 10 * 60_000;
@@ -50,6 +51,7 @@ export function getSsoConfig() {
     tokenAuth: env('SSO_TOKEN_AUTH', 'post') === 'basic' ? 'basic' : 'post',
     emailField: env('SSO_EMAIL_FIELD', 'email'),
     phoneField: env('SSO_PHONE_FIELD', 'phone'),
+    employeeNoField: env('SSO_EMPLOYEE_NO_FIELD', 'number'),
     emailSuffix: (() => {
       const raw = env('SSO_EMAIL_SUFFIX', '@erp.local').trim();
       if (!raw) return '@erp.local';
@@ -293,8 +295,18 @@ export function claimsFromUserinfo(info) {
       || pickPath(source, 'mobile')
       || ''
   );
-  const email = rawEmail || (phone ? `${phone}${cfg.emailSuffix}` : '');
-  if (!email) throw new Error('userinfo has no email or phone');
+  const employeeNo = normalizeEmployeeNo(
+    pickPath(source, cfg.employeeNoField)
+      || pickPath(source, 'number')
+      || pickPath(source, 'employeeNo')
+      || pickPath(source, 'employee_no')
+      || pickPath(source, 'jobNumber')
+      || ''
+  );
+  const email = rawEmail
+    || (phone ? `${phone}${cfg.emailSuffix}` : '')
+    || (employeeNo ? `${employeeNo.toLowerCase()}${cfg.emailSuffix}` : '');
+  if (!email) throw new Error('userinfo has no email, phone or employee number');
   const name = String(
     pickPath(source, cfg.nameField)
       || pickPath(source, 'name')
@@ -311,6 +323,7 @@ export function claimsFromUserinfo(info) {
     subject: String(pickPath(source, 'sub') || pickPath(source, 'id') || phone || email),
     email,
     phone: phone || null,
+    employeeNo: employeeNo || null,
     name,
     department: department.slice(0, 80),
     groups,

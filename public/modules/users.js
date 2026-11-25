@@ -46,8 +46,8 @@ import {
   usersErrorHtml,
   usersPagerView,
   usersTableHtml
-} from './users-view.js';
-import { renderUserDetailBody } from './users-detail-view.js';
+} from './users-view.js?v=corp-20261125b';
+import { renderUserDetailBody } from './users-detail-view.js?v=corp-20261125b';
 
 let users = [];
 let mounted = false;

@@ -9,6 +9,7 @@ import { createUserByAdmin } from '../services/users.js';
 import { summary, patchUserQuota } from '../services/quota.js';
 import { sanitizeUser } from '../services/auth.js';
 import { logger } from '../utils/logger.js';
+import { normalizeEmployeeNo } from '../utils/employee-no.js';
 
 const ERP_TOKEN = String(process.env.ERP_API_TOKEN || '');
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -93,16 +94,20 @@ async function handleSync(req, res) {
 
   const result = { created: 0, updated: 0, unchanged: 0, disabled: 0, errors: [] };
   const seen = new Set();
+  const seenEmployeeNos = new Set();
 
   for (const item of items) {
     try {
       const phone = normalizePhone(item?.phone);
+      const employeeNo = normalizeEmployeeNo(item?.employeeNo ?? item?.employee_no ?? item?.number);
       let email = normalizeEmail(item?.email);
       if (!EMAIL_RE.test(email)) {
-        if (!phone) throw new Error('email or phone required');
-        email = `${phone}${EMAIL_SUFFIX}`;
+        if (phone) email = `${phone}${EMAIL_SUFFIX}`;
+        else if (employeeNo) email = `${employeeNo.toLowerCase()}${EMAIL_SUFFIX}`;
+        else throw new Error('email, phone or employeeNo required');
       }
       seen.add(email);
+      if (employeeNo) seenEmployeeNos.add(employeeNo);
       const role = item.role === 'admin' ? 'admin' : 'user';
       const status = item.status === 'disabled' ? 'disabled' : 'active';
       const department = item.department === undefined ? undefined : (item.department || null);
@@ -110,12 +115,15 @@ async function handleSync(req, res) {
       const quota = quotaPatchFrom(item || {});
       const hasQuota = Object.keys(quota).length > 0;
 
-      let user = (phone && usersTable.findByPhone(phone)) || usersTable.findByEmail(email);
+      let user = (employeeNo && usersTable.findByEmployeeNo(employeeNo))
+        || (phone && usersTable.findByPhone(phone))
+        || usersTable.findByEmail(email);
       if (!user) {
         user = createUserByAdmin({
           username: uniqueUsername(email),
           email,
           phone: phone || null,
+          employeeNo: employeeNo || null,
           password: randomBytes(24).toString('base64url'),
           role,
           department,
@@ -141,12 +149,14 @@ async function handleSync(req, res) {
         department: department === undefined ? user.department : department,
         source: 'erp',
         displayName: displayName === undefined ? user.display_name : displayName,
-        phone: phone || user.phone
+        phone: phone || user.phone,
+        employeeNo: employeeNo || user.employee_no
       });
       if (
         org.department !== user.department ||
         org.display_name !== user.display_name ||
         org.phone !== user.phone ||
+        org.employee_no !== user.employee_no ||
         org.source !== user.source
       ) {
         changed = true;
@@ -158,7 +168,7 @@ async function handleSync(req, res) {
       if (changed) result.updated += 1;
       else result.unchanged += 1;
     } catch (err) {
-      result.errors.push({ email: normalizeEmail(item?.email), phone: normalizePhone(item?.phone), error: String(err.message || err).slice(0, 160) });
+      result.errors.push({ email: normalizeEmail(item?.email), phone: normalizePhone(item?.phone), employeeNo: normalizeEmployeeNo(item?.employeeNo ?? item?.employee_no ?? item?.number), error: String(err.message || err).slice(0, 160) });
     }
   }
 
@@ -166,7 +176,9 @@ async function handleSync(req, res) {
     for (const user of usersTable.list()) {
       if (user.source !== 'erp') continue;
       if (user.status !== 'active') continue;
-      if (seen.has(String(user.email).toLowerCase())) continue;
+      const emailSeen = seen.has(String(user.email).toLowerCase());
+      const employeeSeen = user.employee_no ? seenEmployeeNos.has(user.employee_no) : false;
+      if (emailSeen || employeeSeen) continue;
       usersTable.updateStatus(user.id, 'disabled');
       result.disabled += 1;
     }

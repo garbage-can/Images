@@ -67,15 +67,15 @@ export function createUserRepository({ open, nowIso }) {
       const { where, params } = userListFilterSql(options);
       return open().prepare(`SELECT COUNT(*) AS n FROM users ${where}`).get(...params).n;
     },
-    create({ username, email, phone = null, passwordHash, passwordSalt, role = 'user', signupIp = null, signupUserAgent = null, department = null, source = 'local', displayName = null }) {
+    create({ username, email, phone = null, employeeNo = null, passwordHash, passwordSalt, role = 'user', signupIp = null, signupUserAgent = null, department = null, source = 'local', displayName = null }) {
       const db = open();
       const id = randomUUID();
       const now = nowIso();
       db.prepare(`
         INSERT INTO users
-        (id, username, email, phone, password_hash, password_salt, role, status, signup_ip, signup_user_agent, department, source, display_name, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?)
-      `).run(id, username, email, phone || null, passwordHash, passwordSalt, role, signupIp || null, signupUserAgent || null, department || null, source || 'local', displayName || null, now, now);
+        (id, username, email, phone, employee_no, password_hash, password_salt, role, status, signup_ip, signup_user_agent, department, source, display_name, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?, ?, ?)
+      `).run(id, username, email, phone || null, employeeNo || null, passwordHash, passwordSalt, role, signupIp || null, signupUserAgent || null, department || null, source || 'local', displayName || null, now, now);
       return repo.findById(id);
     },
     findById(id) {
@@ -88,6 +88,10 @@ export function createUserRepository({ open, nowIso }) {
       if (!phone) return null;
       return open().prepare('SELECT * FROM users WHERE phone = ? LIMIT 1').get(phone) || null;
     },
+    findByEmployeeNo(employeeNo) {
+      if (!employeeNo) return null;
+      return open().prepare('SELECT * FROM users WHERE employee_no = ? LIMIT 1').get(employeeNo) || null;
+    },
     findByLogin(login) {
       return open().prepare(
         'SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1'
@@ -99,7 +103,7 @@ export function createUserRepository({ open, nowIso }) {
       const pagingParams = filters.hasPaging ? [filters.pageSize, filters.offset] : [];
       return open().prepare(`
         SELECT
-          id, username, email, phone, role, status, password_reset_required, avatar_url,
+          id, username, email, phone, employee_no, role, status, password_reset_required, avatar_url,
           signup_ip, signup_user_agent, department, source, display_name, created_at, updated_at, last_login_at
         FROM users
         ${where}
@@ -120,16 +124,17 @@ export function createUserRepository({ open, nowIso }) {
       open().prepare('UPDATE users SET status = ?, updated_at = ? WHERE id = ?').run(status, nowIso(), id);
       return repo.findById(id);
     },
-    updateOrg(id, { department, source, displayName, phone } = {}) {
+    updateOrg(id, { department, source, displayName, phone, employeeNo } = {}) {
       const cur = repo.findById(id);
       if (!cur) return null;
       open().prepare(`
-        UPDATE users SET department = ?, source = ?, display_name = ?, phone = ?, updated_at = ? WHERE id = ?
+        UPDATE users SET department = ?, source = ?, display_name = ?, phone = ?, employee_no = ?, updated_at = ? WHERE id = ?
       `).run(
         department === undefined ? cur.department : (department || null),
         source === undefined ? cur.source : (source || 'local'),
         displayName === undefined ? cur.display_name : (displayName || null),
         phone === undefined ? cur.phone : (phone || null),
+        employeeNo === undefined ? cur.employee_no : (employeeNo || null),
         nowIso(),
         id
       );

@@ -4,7 +4,7 @@ import {
   formatTime,
   roleLabel,
   statusLabel
-} from './users-view.js';
+} from './users-view.js?v=corp-20261125b';
 
 export function statusText(status) {
   return {

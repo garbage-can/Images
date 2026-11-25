@@ -68,17 +68,19 @@ function uniqueUsername(email) {
 function findOrCreateUser(claims) {
   const cfg = getSsoConfig();
   const role = claims.role === 'admin' ? 'admin' : cfg.defaultRole;
-  const existing = (claims.phone && usersTable.findByPhone(claims.phone))
+  const existing = (claims.employeeNo && usersTable.findByEmployeeNo(claims.employeeNo))
+    || (claims.phone && usersTable.findByPhone(claims.phone))
     || usersTable.findByEmail(claims.email)
     || usersTable.findByLogin(claims.email);
   if (existing) {
     if (existing.status === 'disabled') throw new Error('account disabled');
-    if (claims.department || claims.name || claims.phone) {
+    if (claims.department || claims.name || claims.phone || claims.employeeNo) {
       usersTable.updateOrg(existing.id, {
         department: claims.department || existing.department,
         source: existing.source || 'sso',
         displayName: claims.name || existing.display_name,
-        phone: claims.phone || existing.phone
+        phone: claims.phone || existing.phone,
+        employeeNo: claims.employeeNo || existing.employee_no
       });
     }
     if (role === 'admin' && existing.role !== 'admin') {
@@ -91,6 +93,7 @@ function findOrCreateUser(claims) {
     username: uniqueUsername(claims.email),
     email: claims.email,
     phone: claims.phone || null,
+    employeeNo: claims.employeeNo || null,
     password: randomToken(24),
     role,
     department: claims.department || null,

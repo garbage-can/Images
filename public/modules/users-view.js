@@ -46,6 +46,7 @@ export function renderUserRow(user = {}, { currentUserId = '' } = {}) {
     <td>${escapeHtml(user.username || '-')}${isSelf ? ` <span class="chip info">${escapeHtml(t('admin.users.self.badge'))}</span>` : ''}</td>
     <td>${escapeHtml(user.display_name || user.displayName || '-')}</td>
     <td>${escapeHtml(user.email || '-')}</td>
+    <td>${escapeHtml(user.employee_no || user.employeeNo || '-')}</td>
     <td>
       <select class="users-role-select" data-native-select="true"${selfTip}>${roleOptions}</select>
     </td>
@@ -74,6 +75,7 @@ export function usersTableHtml(items = [], { currentUserId = '' } = {}) {
           <th>${escapeHtml(t('admin.users.header.username'))}</th>
           <th>${escapeHtml(t('admin.users.header.displayName'))}</th>
           <th>${escapeHtml(t('admin.users.header.email'))}</th>
+          <th>工号</th>
           <th>${escapeHtml(t('admin.users.header.role'))}</th>
           <th>${escapeHtml(t('admin.users.header.status'))}</th>
           <th>${escapeHtml(t('admin.users.header.lastLogin'))}</th>

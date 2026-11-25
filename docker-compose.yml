@@ -106,6 +106,7 @@ services:
       SSO_USERINFO_URL: "${SSO_USERINFO_URL:-}"
       SSO_EMAIL_FIELD: "${SSO_EMAIL_FIELD:-email}"
       SSO_PHONE_FIELD: "${SSO_PHONE_FIELD:-phone}"
+      SSO_EMPLOYEE_NO_FIELD: "${SSO_EMPLOYEE_NO_FIELD:-number}"
       SSO_EMAIL_SUFFIX: "${SSO_EMAIL_SUFFIX:-@erp.local}"
       SSO_NAME_FIELD: "${SSO_NAME_FIELD:-name}"
       SSO_DEPARTMENT_FIELD: "${SSO_DEPARTMENT_FIELD:-department}"
@@ -121,7 +122,7 @@ services:
 
     volumes:
       # SQLite 数据库、WAL、生成图片都在这里；必须持久化。
-      - image-studio-generated:/app/generated
+      - ./generated:/app/generated
 
     # Docker Compose 本地资源限制；Swarm/K8s 请换用对应平台的 resources 配置。
     mem_limit: "${CONTAINER_MEMORY_LIMIT:-768m}"

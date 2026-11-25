@@ -77,6 +77,7 @@ SSO_REDIRECT_URI=https://openwebui.111254.xyz/api/auth/sso/callback
 SSO_ALLOWED_DOMAINS=
 SSO_EMAIL_FIELD=email
 SSO_PHONE_FIELD=phone
+SSO_EMPLOYEE_NO_FIELD=number
 SSO_EMAIL_SUFFIX=@erp.8dt.com
 SSO_NAME_FIELD=name
 SSO_DEPARTMENT_FIELD=department
