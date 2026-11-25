@@ -73,8 +73,10 @@ const API_ROUTES = [
 ];
 
 function dispatchApiRoute(req, res, pathname, url) {
-  // 所有非 GET 请求统一走 CSRF；ERP 服务端接口用 Bearer token，跳过 CSRF。
-  if (!pathname.startsWith('/api/erp/') && !requireCsrf(req, res, pathname)) return;
+  // ERP 服务端接口用 Bearer token；client-logs 是前端遥测，允许旧客户端/第三方 WebView
+  // 不带 CSRF 头上报（仍需登录，不涉及业务写入），避免反复 403。
+  const csrfExempt = pathname.startsWith('/api/erp/') || pathname === '/api/client-logs';
+  if (!csrfExempt && !requireCsrf(req, res, pathname)) return;
 
   const route = API_ROUTES.find((item) => item.match(pathname, req));
   if (!route) return sendJson(res, 404, { error: 'not found' });
