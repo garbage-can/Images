@@ -114,13 +114,17 @@ function requiresSessionCsrfToken(req, pathname = '') {
 
 export function requireCsrf(req, res, pathname = '') {
   if (SAFE_METHODS.has(req.method)) return true;
-  // 要求调用方显式声明是 fetch 发起，挡住 <form> / <img> 这类原生请求
+  const expectedOrigin = selfOrigin(req);
+  const requestOrigin = originOf(req.headers.origin) || originOf(req.headers.referer);
+
+  // 兼容旧 Electron/WebView：它们会丢掉 X-Requested-With 和 CSRF Token，
+  // 但仍是同源 fetch。Origin/Referer 已能挡住跨站表单，故同源时放行。
   if (req.headers['x-requested-with'] !== 'fetch') {
+    if (expectedOrigin && requestOrigin === expectedOrigin) return true;
     sendJson(res, 403, { error: 'csrf' });
     return false;
   }
-  const expectedOrigin = selfOrigin(req);
-  const requestOrigin = originOf(req.headers.origin) || originOf(req.headers.referer);
+
   if (!expectedOrigin || !requestOrigin || requestOrigin !== expectedOrigin) {
     sendJson(res, 403, { error: 'csrf' });
     return false;
