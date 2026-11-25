@@ -180,7 +180,10 @@ export async function handleAdminUsageRoute(req, res, pathname, url) {
   }
 
   try {
-    const entries = await fetchEvents(fromIso, toIso);
+    // 用量面板只展示 Codex 通道；Antigravity/Gemini 的账号与失败请求不进入面板。
+    const entries = (await fetchEvents(fromIso, toIso)).filter(
+      (entry) => String(entry.provider || '').toLowerCase() !== 'antigravity'
+    );
     const ok = entries.filter((e) => classify(e) === 'ok');
     const cancelled = entries.filter((e) => classify(e) === 'cancelled');
     const failed = entries.filter((e) => classify(e) === 'failed');
