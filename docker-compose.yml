@@ -12,6 +12,7 @@ services:
     networks:
       - default
       - new-api
+      - cliproxyapi
 
     environment:
       # 基础服务参数
@@ -73,6 +74,8 @@ services:
       DEFAULT_MONTHLY_LIMIT: "${DEFAULT_MONTHLY_LIMIT:-200}"
       DEFAULT_STORAGE_LIMIT_MB: "${DEFAULT_STORAGE_LIMIT_MB:-500}"
       DEFAULT_CONCURRENT_LIMIT: "${DEFAULT_CONCURRENT_LIMIT:-1}"
+      CPA_PLUGIN_BASE: "${CPA_PLUGIN_BASE:-}"
+      CPA_MGMT_KEY: "${CPA_MGMT_KEY:-}"
       SIGNUP_IP_DAILY_LIMIT: "${SIGNUP_IP_DAILY_LIMIT:-20}"
       SIGNUP_IP_MONTHLY_LIMIT: "${SIGNUP_IP_MONTHLY_LIMIT:-400}"
 
@@ -152,3 +155,6 @@ networks:
   new-api:
     external: true
     name: new-api_default
+  cliproxyapi:
+    external: true
+    name: cliproxyapi_default
