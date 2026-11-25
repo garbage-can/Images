@@ -45,7 +45,7 @@ GET /api/auth/sso/callback    -> 校验 state / 换 token / 验签 ID Token / �
 ## 3. 账号与额度
 
 - 首次 SSO 登录自动建号：用户名取邮箱前缀，冲突时自动加后缀；密码是随机值（用户不需要知道）；
-- 新用户继承 `DEFAULT_DAILY_LIMIT` / `DEFAULT_MONTHLY_LIMIT`（当前默认 100 次/日、100 次/月）；
+- 新用户继承 `DEFAULT_DAILY_LIMIT` / `DEFAULT_MONTHLY_LIMIT`（默认 10 次/日、10 次/月；指定名单用户可在额度管理里单独设为 100/100）；
 - 员工离职：在「管理 → 用户」把状态改为 `disabled`，SSO 登录会被拒绝；
 - 额度调整仍走「管理 → 额度管理」，与 SSO 无关。
 
