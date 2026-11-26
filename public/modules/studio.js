@@ -10,7 +10,7 @@ import {
 import { getChatConfig, getEffectiveProfile, getImageConfig, onProfilesChanged, usesSystemDefault } from './profiles.js';
 import { addLog } from './logs.js';
 import { addPromptHistory } from './prompts.js';
-import { apiFetch } from './auth.js';
+import { apiFetch, shouldShowModelDetails } from './auth.js';
 import { submitGenerationJob } from './jobs.js';
 import { confirmVolatileCustomKeyUse } from './volatile-secrets.js';
 import { createImagePreviewController } from './image-preview.js';
@@ -18,7 +18,8 @@ import {
   buildPromptOptimizationMessages,
   cleanOptimizedPrompt,
   extractChatText,
-  formatOptimizedPromptParagraphs
+  formatOptimizedPromptParagraphs,
+  promptOptimizationProgressMessage
 } from './studio-prompt-optimizer.js';
 import { readGenerateStream } from './studio-stream.js';
 import {
@@ -175,22 +176,11 @@ function populateOptions() {
 }
 
 async function refreshGenerationConfig() {
-  const nInput = $('n');
-  if (!nInput) return;
-  const fallbackMax = Math.max(1, Number(nInput.max) || 1);
+  // 单次固定生成 1 张；保留接口探测，便于后续需要时恢复批量参数。
   try {
-    const resp = await apiFetch('/api/generate/config', { headers: { accept: 'application/json' } });
-    const data = await resp.json().catch(() => ({}));
-    if (!resp.ok) throw new Error(data?.error || `HTTP ${resp.status}`);
-    const max = Math.max(1, Math.floor(Number(data.maxImagesPerRequest) || fallbackMax));
-    nInput.max = String(max);
-    nInput.title = `单次最多 ${max} 张`;
-    if ((Number(nInput.value) || 1) > max) nInput.value = String(max);
-    updateEstimate();
+    await apiFetch('/api/generate/config', { headers: { accept: 'application/json' } });
   } catch {
-    nInput.max = String(fallbackMax);
-    if ((Number(nInput.value) || 1) > fallbackMax) nInput.value = String(fallbackMax);
-    updateEstimate();
+    // 配置探测失败不影响生成。
   }
 }
 
@@ -202,9 +192,7 @@ function formatEstimate(ms) {
 
 function updateEstimate() {
   const ms = estimateDurationMs($('size').value, $('quality').value);
-  const maxN = Math.max(1, Number($('n').max) || 1);
-  const n = Math.min(maxN, Math.max(1, Number($('n').value) || 1));
-  $('estimate').textContent = formatEstimate(ms * n);
+  $('estimate').textContent = formatEstimate(ms);
 }
 
 function updatePromptCount() {
@@ -291,6 +279,14 @@ function showError(message) {
   el.textContent = message || '';
 }
 
+function showConfigError(message) {
+  if (shouldShowModelDetails()) {
+    showError(message);
+    return;
+  }
+  showError('生图服务暂时不可用，请联系管理员检查接口配置。');
+}
+
 function showTaskProgress(kind, message) {
   const el = kind === 'optimize' ? $('optimizeProgress') : $('generateProgress');
   if (!el) return;
@@ -374,14 +370,14 @@ async function optimizePrompt() {
   const profile = getEffectiveProfile();
   const chat = getChatConfig(profile);
   const systemMode = usesSystemDefault();
-  if (!profile) return showError('请先在"配置"页面创建接口配置。');
-  if (profile.status !== 'active') return showError(systemMode
+  if (!profile) return showConfigError('请先在"配置"页面创建接口配置。');
+  if (profile.status !== 'active') return showConfigError(systemMode
     ? '系统默认接口未启用，请联系管理员或在"配置"页面启用个人覆盖。'
     : '当前接口未启用，请在"配置"页面切换为"启用"。');
   if (systemMode && chat.hasApiKey === false) {
-    return showError('系统默认对话接口缺少 API Key，请联系管理员或在"配置"页面启用个人覆盖。');
+    return showConfigError('系统默认对话接口缺少 API Key，请联系管理员或在"配置"页面启用个人覆盖。');
   }
-  if (!systemMode && !chat.apiKey) return showError('当前配置缺少对话 API Key。');
+  if (!systemMode && !chat.apiKey) return showConfigError('当前配置缺少对话 API Key。');
 
   const sourcePrompt = $('prompt').value.trim();
   if (!sourcePrompt) return showError('请先填写需要优化的提示词。');
@@ -404,11 +400,19 @@ async function optimizePrompt() {
   }
 
   const button = $('optimizePrompt');
+  const idleLabel = button.textContent;
   button.disabled = true;
-  setStatus('优化提示词中…', 'busy');
-  showTaskProgress('optimize', `正在调用对话模型 ${payload.model} 优化提示词…`);
+  button.textContent = '提示词优化中…';
+  button.setAttribute('aria-busy', 'true');
+  setStatus('提示词优化中，请稍候…', 'busy');
 
   const started = Date.now();
+  const updateOptimizeProgress = () => {
+    showTaskProgress('optimize', promptOptimizationProgressMessage((Date.now() - started) / 1000));
+  };
+  updateOptimizeProgress();
+  const progressTimer = setInterval(updateOptimizeProgress, 1000);
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), PROMPT_OPTIMIZE_TIMEOUT_MS);
   try {
@@ -457,7 +461,10 @@ async function optimizePrompt() {
     });
     setStatus('优化失败', 'err', 2000);
   } finally {
+    clearInterval(progressTimer);
     clearTimeout(timeoutId);
+    button.textContent = idleLabel;
+    button.removeAttribute('aria-busy');
     button.disabled = false;
     showTaskProgress('optimize', '');
   }
@@ -468,14 +475,14 @@ async function generate({ onSavedImages } = {}) {
   const profile = getEffectiveProfile();
   const image = getImageConfig(profile);
   const systemMode = usesSystemDefault();
-  if (!profile) return showError('请先在"配置"页面创建接口配置。');
-  if (profile.status !== 'active') return showError(systemMode
+  if (!profile) return showConfigError('请先在"配置"页面创建接口配置。');
+  if (profile.status !== 'active') return showConfigError(systemMode
     ? '系统默认接口未启用，请联系管理员或在"配置"页面启用个人覆盖。'
     : '当前接口未启用，请在"配置"页面切换为"启用"。');
   if (systemMode && image.hasApiKey === false) {
-    return showError('系统默认生图接口缺少 API Key，请联系管理员或在"配置"页面启用个人覆盖。');
+    return showConfigError('系统默认生图接口缺少 API Key，请联系管理员或在"配置"页面启用个人覆盖。');
   }
-  if (!systemMode && !image.apiKey) return showError('当前配置缺少生图 API Key。');
+  if (!systemMode && !image.apiKey) return showConfigError('当前配置缺少生图 API Key。');
 
   const promptInfo = getGenerationPrompt();
   const prompt = promptInfo.prompt;
@@ -495,10 +502,7 @@ async function generate({ onSavedImages } = {}) {
     size: $('size').value,
     quality: $('quality').value,
     output_format: $('output_format').value,
-    n: Math.min(
-      Math.max(1, Number($('n').max) || 1),
-      Math.max(1, Number($('n').value) || 1)
-    )
+    n: 1
   };
   const referenceCount = referenceItems.length;
   if (!systemMode) {
@@ -521,7 +525,7 @@ async function generate({ onSavedImages } = {}) {
 
   $('generate').disabled = true;
   setStatus('正在加入队列…', 'busy');
-  showTaskProgress('generate', `正在提交 ${payload.model} 到${referenceCount ? '编辑' : '生成'}队列…`);
+  showTaskProgress('generate', `正在提交图片${referenceCount ? '编辑' : '生成'}任务…`);
 
   const started = Date.now();
   try {
@@ -581,7 +585,7 @@ function handleQueueJobSucceeded(job, { onSavedImages, force = false } = {}) {
   }
   showTaskProgress('generate', '');
   showError('');
-  setStatus(`队列任务完成 · ${job.model || 'image'}`, 'ok', 2200);
+  setStatus('图片生成任务已完成', 'ok', 2200);
 }
 
 function handleQueueJobFinished(job, { onSavedImages } = {}) {
@@ -658,7 +662,7 @@ export function mountStudioPanel({ onSavedImages } = {}) {
   updateActiveChip();
 
   // 参数变化 → 更新预估
-  for (const id of ['size', 'quality', 'n']) {
+  for (const id of ['size', 'quality']) {
     $(id).addEventListener('change', updateEstimate);
     $(id).addEventListener('input', updateEstimate);
   }

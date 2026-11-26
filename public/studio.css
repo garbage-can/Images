@@ -566,3 +566,153 @@ button.danger:hover { background: var(--danger-soft); }
 
 .row { display: flex; gap: 8px; }
 .wrap-row { flex-wrap: wrap; }
+
+/* 紧凑工作台：默认仍为单列；普通用户隐藏运维细节，管理员登录后由 app.js 解除 hidden。 */
+[hidden] { display: none !important; }
+html[data-user-role="user"] [data-admin-only] { display: none !important; }
+
+.studio-workspace {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.studio-controls,
+.studio-results { min-width: 0; }
+
+/* 优化后提示词与手动提示词共用同一区域，避免并排双文本域把页面拉长。 */
+.prompt-workbench[data-optimized="true"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.prompt-workbench[data-optimized="true"][data-prompt-source="manual"] .prompt-optimized-field,
+.prompt-workbench[data-optimized="true"][data-prompt-source="optimized"] .prompt-field:not(.prompt-optimized-field) {
+  display: none;
+}
+
+.progress-task[data-task="optimize"]::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  margin-top: 2px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  font-size: 0;
+  animation: optimize-spin 800ms linear infinite;
+}
+@keyframes optimize-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress-task[data-task="optimize"]::before {
+    border-right-color: currentColor;
+    animation: none;
+  }
+}
+#optimizePrompt[aria-busy="true"] { cursor: progress; }
+
+@media (min-width: 1000px) {
+  .topbar {
+    padding: 8px 16px;
+    gap: 12px;
+  }
+  .top-menu { margin-left: 8px; }
+  .tab-button { padding: 7px 11px; }
+
+  .shell.app-layout { padding-top: 14px; padding-bottom: 16px; }
+  .shell.app-layout:has(#studioPanel.active) { padding-bottom: 14px; }
+  .job-queue-dock {
+    top: 68px;
+    max-height: calc(100dvh - 84px);
+    overflow: auto;
+    padding: 14px 12px;
+  }
+  .job-queue-summary { padding: 8px 0; }
+  .job-queue-summary span { min-height: 42px; }
+  .job-queue-section h3 { margin-top: 8px; }
+
+  #studioPanel .studio-main { padding: 20px; }
+  #studioPanel .studio-workspace {
+    grid-template-columns: minmax(300px, 0.95fr) minmax(280px, 1.05fr);
+    gap: 18px;
+    align-items: stretch;
+  }
+  #studioPanel .studio-controls,
+  #studioPanel .studio-results {
+    max-height: calc(100dvh - 116px);
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+  #studioPanel .studio-controls { padding-right: 4px; }
+  #studioPanel .studio-results {
+    padding-left: 14px;
+    border-left: 1px solid var(--border);
+  }
+  #studioPanel .panel-head {
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  #studioPanel .panel-head .eyebrow { display: none; }
+  #studioPanel .panel-head h2 { font-size: 18px; }
+  #studioPanel .field { margin-bottom: 10px; }
+  #studioPanel .prompt-field textarea,
+  #studioPanel .prompt-optimized-field textarea {
+    min-height: 112px;
+    max-height: 22dvh;
+    padding: 9px 11px;
+    line-height: 1.6;
+  }
+  #studioPanel #promptHint {
+    margin: 6px 0 10px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  #studioPanel .reference-panel {
+    margin-bottom: 10px;
+    padding: 9px 10px;
+  }
+  #studioPanel .reference-head {
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  #studioPanel .reference-head h3 { margin: 0; }
+  #studioPanel .reference-head .hint { display: none; }
+  #studioPanel .reference-empty { padding: 8px 10px; }
+  #studioPanel .advanced {
+    margin: 0 0 10px;
+  }
+  #studioPanel .advanced > summary { padding: 7px 10px; }
+  #studioPanel .action-row {
+    gap: 8px;
+    margin: 4px 0 2px;
+  }
+  #studioPanel .prompt-source-switch button { padding-inline: 8px; }
+  #studioPanel #optimizePrompt,
+  #studioPanel #generate { padding: 8px 12px; }
+  #studioPanel .progress-grid {
+    gap: 6px;
+    margin: 4px 0 0;
+  }
+  #studioPanel .progress-task { min-height: 36px; }
+  #studioPanel .studio-results .section-title {
+    margin: 0 0 10px;
+  }
+  #studioPanel .studio-results .empty-state { padding: 30px 16px; }
+  #studioPanel .result-gallery .image-card { max-width: 100%; }
+  #studioPanel .result-gallery .image-card img {
+    max-height: calc(100dvh - 220px);
+  }
+}
+
+@media (min-width: 1000px) and (max-height: 760px) {
+  #studioPanel #promptHint { display: none; }
+  #studioPanel .prompt-field textarea,
+  #studioPanel .prompt-optimized-field textarea { min-height: 88px; }
+  #studioPanel .reference-head .hint,
+  #studioPanel .estimate { display: none; }
+  #studioPanel .studio-results .empty-state { padding: 20px 12px; }
+}

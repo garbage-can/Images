@@ -6,8 +6,8 @@
   <title>图像工作台 · BYOK 在线生图</title>
   <meta name="color-scheme" content="light dark" />
   <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="./styles.css?v=corp-20261126-ux2" />
-  <link rel="stylesheet" href="./studio.css?v=corp-20261126-ux" />
+  <link rel="stylesheet" href="./styles.css?v=corp-20261126-ux3" />
+  <link rel="stylesheet" href="./studio.css?v=corp-20261126-ux3" />
   <link rel="stylesheet" href="./shell.css?v=corp-20261126-ux" />
   <link rel="stylesheet" href="./gallery.css?v=corp-20261126-ux" />
   <link rel="stylesheet" href="./profiles.css?v=corp-20261126-ux" />
@@ -71,6 +71,7 @@
         <h3 id="jobQueueRecentTitle">最近完成</h3>
         <div id="jobQueueRecent" class="job-queue-list"></div>
       </section>
+      <p class="job-queue-footnote">队列会自动刷新</p>
     </aside>
     <button id="jobQueueMobileButton" class="job-queue-mobile-button" type="button" aria-controls="jobQueueDock" aria-expanded="false" hidden>
       队列 <span id="jobQueueMobileBadge">0</span>
@@ -154,9 +155,6 @@
               </label>
               <label class="field"><span>输出格式</span>
                 <select id="output_format"></select>
-              </label>
-              <label class="field"><span>数量 n</span>
-                <input id="n" type="number" min="1" max="1" value="1" />
               </label>
             </div>
           </details>
