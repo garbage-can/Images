@@ -1,13 +1,13 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>图像工作台 · BYOK 在线生图</title>
+  <title>鍥惧儚宸ヤ綔鍙?路 BYOK 鍦ㄧ嚎鐢熷浘</title>
   <meta name="color-scheme" content="light dark" />
   <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./styles.css?v=corp-20261126-ux3" />
-  <link rel="stylesheet" href="./studio.css?v=corp-20261126-ux4" />
+  <link rel="stylesheet" href="./studio.css?v=corp-20261126-ux5" />
   <link rel="stylesheet" href="./shell.css?v=corp-20261126-ux" />
   <link rel="stylesheet" href="./gallery.css?v=corp-20261126-ux" />
   <link rel="stylesheet" href="./profiles.css?v=corp-20261126-ux" />
@@ -18,63 +18,63 @@
   <script src="./main-boot.js?v=corp-20261126-ux"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">跳到主内容</a>
+  <a class="skip-link" href="#main">璺冲埌涓诲唴瀹?/a>
 
   <header class="topbar" role="banner">
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true">◆</span>
-      <span class="brand-title">图像工作台</span>
-      <span class="brand-sub">BYOK · 在线生图</span>
+      <span class="brand-mark" aria-hidden="true">鈼?/span>
+      <span class="brand-title">鍥惧儚宸ヤ綔鍙?/span>
+      <span class="brand-sub">BYOK 路 鍦ㄧ嚎鐢熷浘</span>
     </div>
 
-    <nav class="top-menu" aria-label="主导航">
-      <button class="tab-button active" data-tab="studioPanel" data-hotkey="gs">生成</button>
-      <button class="tab-button" data-tab="promptPanel" data-hotkey="gt">提示词</button>
-      <button class="tab-button" data-tab="galleryPanel" data-hotkey="gg">图库</button>
-      <button class="tab-button" id="usageMenuButton" type="button" data-usage-menu aria-haspopup="dialog">我的用量</button>
-      <button class="tab-button" data-tab="configPanel" data-hotkey="gp" data-admin-only hidden>配置</button>
+    <nav class="top-menu" aria-label="涓诲鑸?>
+      <button class="tab-button active" data-tab="studioPanel" data-hotkey="gs">鐢熸垚</button>
+      <button class="tab-button" data-tab="promptPanel" data-hotkey="gt">鎻愮ず璇?/button>
+      <button class="tab-button" data-tab="galleryPanel" data-hotkey="gg">鍥惧簱</button>
+      <button class="tab-button" id="usageMenuButton" type="button" data-usage-menu aria-haspopup="dialog">鎴戠殑鐢ㄩ噺</button>
+      <button class="tab-button" data-tab="configPanel" data-hotkey="gp" data-admin-only hidden>閰嶇疆</button>
       <button class="tab-button" data-tab="logsPanel" data-hotkey="gl" data-admin-only hidden>
-        日志 <span id="logErrorBadge" class="menu-badge" hidden>0</span>
+        鏃ュ織 <span id="logErrorBadge" class="menu-badge" hidden>0</span>
       </button>
-      <button class="tab-button" data-tab="usersPanel" data-hotkey="gu" data-admin-only hidden>管理</button>
-      <button class="tab-button" data-tab="usagePanel" data-hotkey="gq" data-admin-only hidden>用量看板</button>
+      <button class="tab-button" data-tab="usersPanel" data-hotkey="gu" data-admin-only hidden>绠＄悊</button>
+      <button class="tab-button" data-tab="usagePanel" data-hotkey="gq" data-admin-only hidden>鐢ㄩ噺鐪嬫澘</button>
     </nav>
 
     <div class="topbar-right">
-      <span class="status-chip" id="status" data-state="ready" role="status" aria-live="polite" aria-atomic="true">就绪</span>
+      <span class="status-chip" id="status" data-state="ready" role="status" aria-live="polite" aria-atomic="true">灏辩华</span>
       <div id="userMenu" class="user-menu"></div>
-      <button class="icon-button" id="themeToggle" title="切换主题" aria-label="切换主题">
-        <span class="theme-icon" data-theme-icon>◐</span>
+      <button class="icon-button" id="themeToggle" title="鍒囨崲涓婚" aria-label="鍒囨崲涓婚">
+        <span class="theme-icon" data-theme-icon>鈼?/span>
       </button>
     </div>
   </header>
 
   <main id="main" class="shell app-layout">
-    <aside id="jobQueueDock" class="job-queue-dock" aria-label="生成队列" hidden>
+    <aside id="jobQueueDock" class="job-queue-dock" aria-label="鐢熸垚闃熷垪" hidden>
       <header class="job-queue-head">
         <div>
           <p class="eyebrow">Queue</p>
-          <h2>生成队列</h2>
+          <h2>鐢熸垚闃熷垪</h2>
         </div>
-        <button id="jobQueueClearDone" class="ghost small" type="button">清空已完成</button>
+        <button id="jobQueueClearDone" class="ghost small" type="button">娓呯┖宸插畬鎴?/button>
       </header>
-      <div id="jobQueueSummary" class="job-queue-summary" aria-live="polite">正在加载队列…</div>
+      <div id="jobQueueSummary" class="job-queue-summary" aria-live="polite">姝ｅ湪鍔犺浇闃熷垪鈥?/div>
       <section class="job-queue-section" aria-labelledby="jobQueueRunningTitle">
-        <h3 id="jobQueueRunningTitle">正在执行</h3>
+        <h3 id="jobQueueRunningTitle">姝ｅ湪鎵ц</h3>
         <div id="jobQueueRunning" class="job-queue-list"></div>
       </section>
       <section class="job-queue-section" aria-labelledby="jobQueueQueuedTitle">
-        <h3 id="jobQueueQueuedTitle">排队中</h3>
+        <h3 id="jobQueueQueuedTitle">鎺掗槦涓?/h3>
         <div id="jobQueueQueued" class="job-queue-list"></div>
       </section>
       <section class="job-queue-section job-queue-recent-section" aria-labelledby="jobQueueRecentTitle">
-        <h3 id="jobQueueRecentTitle">最近完成</h3>
+        <h3 id="jobQueueRecentTitle">鏈€杩戝畬鎴?/h3>
         <div id="jobQueueRecent" class="job-queue-list"></div>
       </section>
-      <p class="job-queue-footnote">队列会自动刷新</p>
+      <p class="job-queue-footnote">闃熷垪浼氳嚜鍔ㄥ埛鏂?/p>
     </aside>
     <button id="jobQueueMobileButton" class="job-queue-mobile-button" type="button" aria-controls="jobQueueDock" aria-expanded="false" hidden>
-      队列 <span id="jobQueueMobileBadge">0</span>
+      闃熷垪 <span id="jobQueueMobileBadge">0</span>
     </button>
 
     <div class="workspace-panels">
@@ -88,98 +88,98 @@
             <div class="studio-controls">
           <header class="panel-head">
             <div>
-              <p class="eyebrow">生成</p>
-              <h2 id="studioHeading">生成图片</h2>
+              <p class="eyebrow">鐢熸垚</p>
+              <h2 id="studioHeading">鐢熸垚鍥剧墖</h2>
             </div>
             <div class="active-profile-chip" id="activeProfileChip" data-admin-only hidden>
               <span class="dot" data-status="unknown"></span>
-              <span>当前配置：<strong id="activeConfigName">-</strong></span>
-              <button class="ghost small tab-link" data-tab="configPanel">切换</button>
+              <span>褰撳墠閰嶇疆锛?strong id="activeConfigName">-</strong></span>
+              <button class="ghost small tab-link" data-tab="configPanel">鍒囨崲</button>
             </div>
           </header>
 
           <label class="field model-field" data-admin-only hidden>
-            <span>模型</span>
+            <span>妯″瀷</span>
             <input id="model" value="gpt-image-2" spellcheck="false" />
           </label>
 
           <div class="prompt-workbench" id="promptWorkbench" data-optimized="false">
             <label class="field prompt-field">
               <span class="field-row">
-                <span>提示词 <kbd>⌘⏎</kbd> 生成</span>
-                <span class="hint-right"><span id="promptCount">0</span> 字符</span>
+                <span>鎻愮ず璇?<kbd>鈱樷弾</kbd> 鐢熸垚</span>
+                <span class="hint-right"><span id="promptCount">0</span> 瀛楃</span>
               </span>
               <textarea id="prompt" rows="7"
-                placeholder="描述你想生成的图片：主体、风格、构图、光线、画面中的文字……"
+                placeholder="鎻忚堪浣犳兂鐢熸垚鐨勫浘鐗囷細涓讳綋銆侀鏍笺€佹瀯鍥俱€佸厜绾裤€佺敾闈腑鐨勬枃瀛椻€︹€?
                 aria-describedby="promptHint"></textarea>
             </label>
             <label class="field prompt-field prompt-optimized-field" id="promptOptimizedField" hidden>
               <span class="field-row">
-                <span>优化后提示词</span>
-                <span class="hint-right"><span id="optimizedPromptCount">0</span> 字符</span>
+                <span>浼樺寲鍚庢彁绀鸿瘝</span>
+                <span class="hint-right"><span id="optimizedPromptCount">0</span> 瀛楃</span>
               </span>
               <textarea id="optimizedPrompt" rows="7"
-                placeholder="点击下方“优化提示词”后，这里会生成更适合生图模型的版本。"
+                placeholder="鐐瑰嚮涓嬫柟鈥滀紭鍖栨彁绀鸿瘝鈥濆悗锛岃繖閲屼細鐢熸垚鏇撮€傚悎鐢熷浘妯″瀷鐨勭増鏈€?
                 aria-describedby="promptHint"></textarea>
             </label>
           </div>
-          <p class="hint" id="promptHint">草稿会自动保存到本地；默认使用手动输入，可用下方左右切换选择生成来源；优化完成后会自动切到优化后提示词。</p>
+          <p class="hint" id="promptHint">鑽夌浼氳嚜鍔ㄤ繚瀛樺埌鏈湴锛涢粯璁や娇鐢ㄦ墜鍔ㄨ緭鍏ワ紝鍙敤涓嬫柟宸﹀彸鍒囨崲閫夋嫨鐢熸垚鏉ユ簮锛涗紭鍖栧畬鎴愬悗浼氳嚜鍔ㄥ垏鍒颁紭鍖栧悗鎻愮ず璇嶃€?/p>
 
           <section class="reference-panel" aria-labelledby="referenceHeading">
             <div class="reference-head">
               <div>
-                <h3 id="referenceHeading">参考图</h3>
-                <p class="hint">可上传图片，或把生成结果/我的图库图片加入参考图池；有参考图时会自动走图片编辑。</p>
+                <h3 id="referenceHeading">鍙傝€冨浘</h3>
+                <p class="hint">鍙笂浼犲浘鐗囷紝鎴栨妸鐢熸垚缁撴灉/鎴戠殑鍥惧簱鍥剧墖鍔犲叆鍙傝€冨浘姹狅紱鏈夊弬鑰冨浘鏃朵細鑷姩璧板浘鐗囩紪杈戙€?/p>
               </div>
               <div class="reference-actions">
                 <label class="ghost small reference-upload-button">
-                  上传图片
+                  涓婁紶鍥剧墖
                   <input id="referenceUpload" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden />
                 </label>
-                <button id="clearReferences" class="ghost small" type="button" disabled>清空</button>
+                <button id="clearReferences" class="ghost small" type="button" disabled>娓呯┖</button>
               </div>
             </div>
             <div id="referenceList" class="reference-list" data-empty="true">
-              <div class="reference-empty">还没有参考图。生成结果卡片可点“加入参考图”。</div>
+              <div class="reference-empty">杩樻病鏈夊弬鑰冨浘銆傜敓鎴愮粨鏋滃崱鐗囧彲鐐光€滃姞鍏ュ弬鑰冨浘鈥濄€?/div>
             </div>
           </section>
 
           <details class="advanced">
-            <summary>高级参数</summary>
+            <summary>楂樼骇鍙傛暟</summary>
             <div class="options">
-              <label class="field"><span>尺寸</span>
+              <label class="field"><span>灏哄</span>
                 <select id="size"></select>
               </label>
-              <label class="field"><span>质量</span>
+              <label class="field"><span>璐ㄩ噺</span>
                 <select id="quality"></select>
               </label>
-              <label class="field"><span>输出格式</span>
+              <label class="field"><span>杈撳嚭鏍煎紡</span>
                 <select id="output_format"></select>
               </label>
             </div>
           </details>
 
           <div class="action-row">
-            <div class="prompt-source-switch" role="group" aria-label="选择生成使用的提示词">
-              <button id="useManualPrompt" class="active" type="button" data-prompt-source="manual" aria-pressed="true">手动输入提示词</button>
-              <button id="useOptimizedPrompt" type="button" data-prompt-source="optimized" aria-pressed="false" disabled>优化后提示词</button>
+            <div class="prompt-source-switch" role="group" aria-label="閫夋嫨鐢熸垚浣跨敤鐨勬彁绀鸿瘝">
+              <button id="useManualPrompt" class="active" type="button" data-prompt-source="manual" aria-pressed="true">鎵嬪姩杈撳叆鎻愮ず璇?/button>
+              <button id="useOptimizedPrompt" type="button" data-prompt-source="optimized" aria-pressed="false" disabled>浼樺寲鍚庢彁绀鸿瘝</button>
             </div>
-            <button id="optimizePrompt" class="ghost" type="button">优化提示词</button>
+            <button id="optimizePrompt" class="ghost" type="button">浼樺寲鎻愮ず璇?/button>
             <button id="generate" class="primary">
-              <span>生成</span>
-              <kbd class="kbd-inline">⌘⏎</kbd>
+              <span>鐢熸垚</span>
+              <kbd class="kbd-inline">鈱樷弾</kbd>
             </button>
-            <span class="estimate" id="estimate">预估耗时 —</span>
+            <span class="estimate" id="estimate">棰勪及鑰楁椂 鈥?/span>
           </div>
 
           <div id="error" class="error" hidden role="alert"></div>
-          <div class="progress-grid" aria-label="任务状态" hidden>
+          <div class="progress-grid" aria-label="浠诲姟鐘舵€? hidden>
             <div id="optimizeProgress" class="progress progress-task" data-task="optimize" hidden aria-live="polite">
-              <strong>提示词优化</strong>
+              <strong>鎻愮ず璇嶄紭鍖?/strong>
               <span data-progress-message></span>
             </div>
             <div id="generateProgress" class="progress progress-task" data-task="generate" hidden aria-live="polite">
-              <strong>生图</strong>
+              <strong>鐢熷浘</strong>
               <span data-progress-message></span>
             </div>
           </div>
@@ -187,11 +187,11 @@
             </div>
 
             <section class="gallery-section studio-results">
-            <h3 class="section-title">结果</h3>
+            <h3 class="section-title">缁撴灉</h3>
             <div id="gallery" class="gallery result-gallery" data-empty="true">
               <div class="empty-state">
-                <div class="empty-icon" aria-hidden="true">▢</div>
-                <p>还没有生成过图片。<br/>写下你的第一个 prompt，按 <kbd>⌘⏎</kbd> 开始。</p>
+                <div class="empty-icon" aria-hidden="true">鈻?/div>
+                <p>杩樻病鏈夌敓鎴愯繃鍥剧墖銆?br/>鍐欎笅浣犵殑绗竴涓?prompt锛屾寜 <kbd>鈱樷弾</kbd> 寮€濮嬨€?/p>
               </div>
             </div>
           </section>
@@ -208,16 +208,16 @@
         <header class="panel-head prompt-manager-head">
           <div>
             <p class="eyebrow">Prompt OS</p>
-            <h2 id="promptHeading">提示词管理</h2>
-            <p class="hint">把零散想法组合成可复用提示词，并沉淀每一次生成记录。</p>
+            <h2 id="promptHeading">鎻愮ず璇嶇鐞?/h2>
+            <p class="hint">鎶婇浂鏁ｆ兂娉曠粍鍚堟垚鍙鐢ㄦ彁绀鸿瘝锛屽苟娌夋穩姣忎竴娆＄敓鎴愯褰曘€?/p>
           </div>
-          <div class="prompt-tabs" role="tablist" aria-label="提示词子面板">
-            <button class="prompt-tab active" data-prompt-tab="builder" role="tab" aria-selected="true">提示词构造</button>
+          <div class="prompt-tabs" role="tablist" aria-label="鎻愮ず璇嶅瓙闈㈡澘">
+            <button class="prompt-tab active" data-prompt-tab="builder" role="tab" aria-selected="true">鎻愮ず璇嶆瀯閫?/button>
             <button class="prompt-tab" data-prompt-tab="history" role="tab" aria-selected="false">
-              历史提示词管理 <span id="promptHistoryCount" class="soft-count">0</span>
+              鍘嗗彶鎻愮ず璇嶇鐞?<span id="promptHistoryCount" class="soft-count">0</span>
             </button>
             <button class="prompt-tab" data-prompt-tab="square" role="tab" aria-selected="false">
-              提示词广场 <span id="promptSquareCount" class="soft-count">0</span>
+              鎻愮ず璇嶅箍鍦?<span id="promptSquareCount" class="soft-count">0</span>
             </button>
           </div>
         </header>
@@ -228,57 +228,57 @@
               <div class="prompt-section-head">
                 <div>
                   <p class="eyebrow">Builder</p>
-                  <h3 id="promptBuilderHeading">结构化构造</h3>
+                  <h3 id="promptBuilderHeading">缁撴瀯鍖栨瀯閫?/h3>
                 </div>
-                <button id="promptClearBuilder" class="ghost small" type="button">清空构造</button>
+                <button id="promptClearBuilder" class="ghost small" type="button">娓呯┖鏋勯€?/button>
               </div>
 
               <div class="prompt-form-grid">
                 <label class="field">
-                  <span>标题</span>
-                  <input id="promptTitleInput" placeholder="例如：雨夜霓虹中的白色跑车" />
+                  <span>鏍囬</span>
+                  <input id="promptTitleInput" placeholder="渚嬪锛氶洦澶滈湏铏逛腑鐨勭櫧鑹茶窇杞? />
                 </label>
                 <label class="field">
-                  <span>标签</span>
-                  <input id="promptTagsInput" placeholder="逗号分隔，例如：产品, 写实, 夜景" />
+                  <span>鏍囩</span>
+                  <input id="promptTagsInput" placeholder="閫楀彿鍒嗛殧锛屼緥濡傦細浜у搧, 鍐欏疄, 澶滄櫙" />
                 </label>
                 <label class="field span-2">
-                  <span>主体与场景</span>
-                  <textarea id="promptSubjectInput" rows="3" placeholder="谁 / 什么物体，在什么环境里，正在发生什么。"></textarea>
+                  <span>涓讳綋涓庡満鏅?/span>
+                  <textarea id="promptSubjectInput" rows="3" placeholder="璋?/ 浠€涔堢墿浣擄紝鍦ㄤ粈涔堢幆澧冮噷锛屾鍦ㄥ彂鐢熶粈涔堛€?></textarea>
                 </label>
                 <label class="field">
-                  <span>风格与媒介</span>
-                  <textarea id="promptStyleInput" rows="3" placeholder="写实摄影、赛博朋克、海报设计、3D 渲染、胶片质感……"></textarea>
+                  <span>椋庢牸涓庡獟浠?/span>
+                  <textarea id="promptStyleInput" rows="3" placeholder="鍐欏疄鎽勫奖銆佽禌鍗氭湅鍏嬨€佹捣鎶ヨ璁°€?D 娓叉煋銆佽兌鐗囪川鎰熲€︹€?></textarea>
                 </label>
                 <label class="field">
-                  <span>构图与镜头</span>
-                  <textarea id="promptCompositionInput" rows="3" placeholder="近景、俯拍、中心构图、留白、85mm、浅景深……"></textarea>
+                  <span>鏋勫浘涓庨暅澶?/span>
+                  <textarea id="promptCompositionInput" rows="3" placeholder="杩戞櫙銆佷刊鎷嶃€佷腑蹇冩瀯鍥俱€佺暀鐧姐€?5mm銆佹祬鏅繁鈥︹€?></textarea>
                 </label>
                 <label class="field">
-                  <span>光线与氛围</span>
-                  <textarea id="promptLightingInput" rows="3" placeholder="柔光、逆光、雨后反光、清晨薄雾、强对比阴影……"></textarea>
+                  <span>鍏夌嚎涓庢皼鍥?/span>
+                  <textarea id="promptLightingInput" rows="3" placeholder="鏌斿厜銆侀€嗗厜銆侀洦鍚庡弽鍏夈€佹竻鏅ㄨ杽闆俱€佸己瀵规瘮闃村奖鈥︹€?></textarea>
                 </label>
                 <label class="field">
-                  <span>色彩与材质</span>
-                  <textarea id="promptPaletteInput" rows="3" placeholder="冷暖对比、黑金、低饱和、玻璃、金属、织物细节……"></textarea>
+                  <span>鑹插僵涓庢潗璐?/span>
+                  <textarea id="promptPaletteInput" rows="3" placeholder="鍐锋殩瀵规瘮銆侀粦閲戙€佷綆楗卞拰銆佺幓鐠冦€侀噾灞炪€佺粐鐗╃粏鑺傗€︹€?></textarea>
                 </label>
                 <label class="field">
-                  <span>画面文字</span>
-                  <textarea id="promptTextInput" rows="2" placeholder="如果需要文字，写清楚具体文案、位置与字体气质。"></textarea>
+                  <span>鐢婚潰鏂囧瓧</span>
+                  <textarea id="promptTextInput" rows="2" placeholder="濡傛灉闇€瑕佹枃瀛楋紝鍐欐竻妤氬叿浣撴枃妗堛€佷綅缃笌瀛椾綋姘旇川銆?></textarea>
                 </label>
                 <label class="field">
-                  <span>避免项</span>
-                  <textarea id="promptNegativeInput" rows="2" placeholder="避免低清晰度、畸形手指、水印、无关文字、过曝……"></textarea>
+                  <span>閬垮厤椤?/span>
+                  <textarea id="promptNegativeInput" rows="2" placeholder="閬垮厤浣庢竻鏅板害銆佺暩褰㈡墜鎸囥€佹按鍗般€佹棤鍏虫枃瀛椼€佽繃鏇濃€︹€?></textarea>
                 </label>
               </div>
 
-              <div class="prompt-chip-bank" aria-label="快速补全">
-                <span>快速补全</span>
-                <button class="prompt-chip" data-target="promptStyleInput" data-value="写实商业摄影，细节清晰，质感高级">写实商业</button>
-                <button class="prompt-chip" data-target="promptCompositionInput" data-value="主体居中，背景留有干净负空间，适合封面裁切">封面构图</button>
-                <button class="prompt-chip" data-target="promptLightingInput" data-value="柔和主光，边缘轮廓光，层次分明">柔光轮廓</button>
-                <button class="prompt-chip" data-target="promptPaletteInput" data-value="低饱和中性色，单一强调色，统一色调">克制配色</button>
-                <button class="prompt-chip" data-target="promptNegativeInput" data-value="避免水印、乱码文字、过度锐化、低分辨率">基础避免</button>
+              <div class="prompt-chip-bank" aria-label="蹇€熻ˉ鍏?>
+                <span>蹇€熻ˉ鍏?/span>
+                <button class="prompt-chip" data-target="promptStyleInput" data-value="鍐欏疄鍟嗕笟鎽勫奖锛岀粏鑺傛竻鏅帮紝璐ㄦ劅楂樼骇">鍐欏疄鍟嗕笟</button>
+                <button class="prompt-chip" data-target="promptCompositionInput" data-value="涓讳綋灞呬腑锛岃儗鏅暀鏈夊共鍑€璐熺┖闂达紝閫傚悎灏侀潰瑁佸垏">灏侀潰鏋勫浘</button>
+                <button class="prompt-chip" data-target="promptLightingInput" data-value="鏌斿拰涓诲厜锛岃竟缂樿疆寤撳厜锛屽眰娆″垎鏄?>鏌斿厜杞粨</button>
+                <button class="prompt-chip" data-target="promptPaletteInput" data-value="浣庨ケ鍜屼腑鎬ц壊锛屽崟涓€寮鸿皟鑹诧紝缁熶竴鑹茶皟">鍏嬪埗閰嶈壊</button>
+                <button class="prompt-chip" data-target="promptNegativeInput" data-value="閬垮厤姘村嵃銆佷贡鐮佹枃瀛椼€佽繃搴﹂攼鍖栥€佷綆鍒嗚鲸鐜?>鍩虹閬垮厤</button>
               </div>
             </section>
 
@@ -286,24 +286,24 @@
               <div class="prompt-section-head">
                 <div>
                   <p class="eyebrow">Preview</p>
-                  <h3 id="promptPreviewHeading">最终提示词</h3>
+                  <h3 id="promptPreviewHeading">鏈€缁堟彁绀鸿瘝</h3>
                 </div>
-                <span class="prompt-count"><span id="promptPreviewCount">0</span> 字符</span>
+                <span class="prompt-count"><span id="promptPreviewCount">0</span> 瀛楃</span>
               </div>
-              <textarea id="promptComposedOutput" rows="13" spellcheck="false" aria-label="最终提示词"></textarea>
-              <div class="prompt-quality-list" id="promptQualityList" aria-label="提示词完整度">
-                <span data-check="subject">主体</span>
-                <span data-check="style">风格</span>
-                <span data-check="composition">构图</span>
-                <span data-check="lighting">光线</span>
-                <span data-check="constraints">约束</span>
+              <textarea id="promptComposedOutput" rows="13" spellcheck="false" aria-label="鏈€缁堟彁绀鸿瘝"></textarea>
+              <div class="prompt-quality-list" id="promptQualityList" aria-label="鎻愮ず璇嶅畬鏁村害">
+                <span data-check="subject">涓讳綋</span>
+                <span data-check="style">椋庢牸</span>
+                <span data-check="composition">鏋勫浘</span>
+                <span data-check="lighting">鍏夌嚎</span>
+                <span data-check="constraints">绾︽潫</span>
               </div>
               <div class="prompt-action-row">
-                <button id="promptUseInStudio" class="primary" type="button">送到生成页</button>
-                <button id="promptSaveHistory" class="ghost" type="button">保存到历史</button>
-                <button id="promptCopyOutput" class="ghost" type="button">复制</button>
+                <button id="promptUseInStudio" class="primary" type="button">閫佸埌鐢熸垚椤?/button>
+                <button id="promptSaveHistory" class="ghost" type="button">淇濆瓨鍒板巻鍙?/button>
+                <button id="promptCopyOutput" class="ghost" type="button">澶嶅埗</button>
               </div>
-              <p class="hint">可以直接编辑最终提示词；保存后会进入历史管理，也可一键回填到生成页。</p>
+              <p class="hint">鍙互鐩存帴缂栬緫鏈€缁堟彁绀鸿瘝锛涗繚瀛樺悗浼氳繘鍏ュ巻鍙茬鐞嗭紝涔熷彲涓€閿洖濉埌鐢熸垚椤点€?/p>
             </aside>
           </div>
         </div>
@@ -311,36 +311,36 @@
         <div class="prompt-subpanel" id="promptHistoryPanel" role="tabpanel">
           <div class="prompt-history-toolbar">
             <div class="prompt-history-filters">
-              <label class="inline-label">搜索
-                <input id="promptHistorySearch" placeholder="标题 / 内容 / 标签" />
+              <label class="inline-label">鎼滅储
+                <input id="promptHistorySearch" placeholder="鏍囬 / 鍐呭 / 鏍囩" />
               </label>
-              <label class="inline-label">标签
+              <label class="inline-label">鏍囩
                 <select id="promptTagFilter">
-                  <option value="all">全部标签</option>
+                  <option value="all">鍏ㄩ儴鏍囩</option>
                 </select>
               </label>
-              <label class="inline-label">来源
+              <label class="inline-label">鏉ユ簮
                 <select id="promptSourceFilter">
-                  <option value="all">全部来源</option>
-                  <option value="builder">构造器</option>
-                  <option value="studio">生成页</option>
-                  <option value="optimizer">优化</option>
-                  <option value="manual">手动</option>
-                  <option value="square">广场</option>
+                  <option value="all">鍏ㄩ儴鏉ユ簮</option>
+                  <option value="builder">鏋勯€犲櫒</option>
+                  <option value="studio">鐢熸垚椤?/option>
+                  <option value="optimizer">浼樺寲</option>
+                  <option value="manual">鎵嬪姩</option>
+                  <option value="square">骞垮満</option>
                 </select>
               </label>
             </div>
             <div class="prompt-history-actions">
-              <button id="promptExportHistory" class="ghost" type="button">导出 JSON</button>
-              <button id="promptClearHistory" class="danger ghost" type="button">清空未固定</button>
+              <button id="promptExportHistory" class="ghost" type="button">瀵煎嚭 JSON</button>
+              <button id="promptClearHistory" class="danger ghost" type="button">娓呯┖鏈浐瀹?/button>
             </div>
           </div>
 
           <div class="prompt-history-summary" id="promptHistorySummary" aria-live="polite"></div>
           <div id="promptHistoryList" class="prompt-history-list" data-empty="true">
             <div class="empty-state">
-              <div class="empty-icon" aria-hidden="true">✦</div>
-              <p>还没有历史提示词。先在构造面板保存，或在生成页完成一次生成。</p>
+              <div class="empty-icon" aria-hidden="true">鉁?/div>
+              <p>杩樻病鏈夊巻鍙叉彁绀鸿瘝銆傚厛鍦ㄦ瀯閫犻潰鏉夸繚瀛橈紝鎴栧湪鐢熸垚椤靛畬鎴愪竴娆＄敓鎴愩€?/p>
             </div>
           </div>
         </div>
@@ -349,44 +349,44 @@
           <section class="prompt-square-hero" aria-labelledby="promptSquareHeading">
             <div>
               <p class="eyebrow">Prompt Square</p>
-              <h3 id="promptSquareHeading">提示词广场</h3>
-              <p class="hint">按时间范围、风格标签和使用热度浏览用户公开提示词，可一键送到生成页或保存到历史。</p>
+              <h3 id="promptSquareHeading">鎻愮ず璇嶅箍鍦?/h3>
+              <p class="hint">鎸夋椂闂磋寖鍥淬€侀鏍兼爣绛惧拰浣跨敤鐑害娴忚鐢ㄦ埛鍏紑鎻愮ず璇嶏紝鍙竴閿€佸埌鐢熸垚椤垫垨淇濆瓨鍒板巻鍙层€?/p>
             </div>
-            <div class="prompt-square-periods" role="tablist" aria-label="广场时间范围">
-              <button class="prompt-square-period active" type="button" data-square-period="all">全部时间</button>
-              <button class="prompt-square-period" type="button" data-square-period="24h">最近 24 小时</button>
-              <button class="prompt-square-period" type="button" data-square-period="7d">最近 7 天</button>
-              <button class="prompt-square-period" type="button" data-square-period="30d">最近一个月</button>
+            <div class="prompt-square-periods" role="tablist" aria-label="骞垮満鏃堕棿鑼冨洿">
+              <button class="prompt-square-period active" type="button" data-square-period="all">鍏ㄩ儴鏃堕棿</button>
+              <button class="prompt-square-period" type="button" data-square-period="24h">鏈€杩?24 灏忔椂</button>
+              <button class="prompt-square-period" type="button" data-square-period="7d">鏈€杩?7 澶?/button>
+              <button class="prompt-square-period" type="button" data-square-period="30d">鏈€杩戜竴涓湀</button>
             </div>
           </section>
 
           <div class="prompt-history-toolbar prompt-square-toolbar">
             <div class="prompt-history-filters">
-              <label class="inline-label">搜索
-                <input id="promptSquareSearch" placeholder="标题 / 内容 / 标签 / 作者" />
+              <label class="inline-label">鎼滅储
+                <input id="promptSquareSearch" placeholder="鏍囬 / 鍐呭 / 鏍囩 / 浣滆€? />
               </label>
-              <label class="inline-label">排序
+              <label class="inline-label">鎺掑簭
                 <select id="promptSquareSort">
-                  <option value="sourceHot:desc">来源热度</option>
-                  <option value="publishedAt:desc">最新发布</option>
-                  <option value="useCount:desc">使用最多</option>
-                  <option value="mine:first">我的公开优先</option>
+                  <option value="sourceHot:desc">鏉ユ簮鐑害</option>
+                  <option value="publishedAt:desc">鏈€鏂板彂甯?/option>
+                  <option value="useCount:desc">浣跨敤鏈€澶?/option>
+                  <option value="mine:first">鎴戠殑鍏紑浼樺厛</option>
                 </select>
               </label>
             </div>
             <div class="prompt-history-actions">
-              <button id="promptSquareRefresh" class="ghost" type="button">刷新广场</button>
+              <button id="promptSquareRefresh" class="ghost" type="button">鍒锋柊骞垮満</button>
             </div>
           </div>
 
-          <div class="prompt-square-tag-cloud" id="promptSquareTagCloud" aria-label="按风格浏览">
-            <button class="prompt-square-tag active" type="button" data-square-tag="all">所有风格</button>
+          <div class="prompt-square-tag-cloud" id="promptSquareTagCloud" aria-label="鎸夐鏍兼祻瑙?>
+            <button class="prompt-square-tag active" type="button" data-square-tag="all">鎵€鏈夐鏍?/button>
           </div>
           <div class="prompt-history-summary" id="promptSquareSummary" aria-live="polite"></div>
           <div id="promptSquareList" class="prompt-square-list" data-empty="true">
             <div class="empty-state">
-              <div class="empty-icon" aria-hidden="true">✦</div>
-              <p>广场还没有公开提示词。请在“历史提示词管理”中选择“公开到广场”。</p>
+              <div class="empty-icon" aria-hidden="true">鉁?/div>
+              <p>骞垮満杩樻病鏈夊叕寮€鎻愮ず璇嶃€傝鍦ㄢ€滃巻鍙叉彁绀鸿瘝绠＄悊鈥濅腑閫夋嫨鈥滃叕寮€鍒板箍鍦衡€濄€?/p>
             </div>
           </div>
         </div>
@@ -396,31 +396,31 @@
     <!-- ============================================================ -->
     <!-- Gallery -->
     <!-- ============================================================ -->
-    <section id="galleryPanel" class="tab-panel" aria-label="本地图库">
+    <section id="galleryPanel" class="tab-panel" aria-label="鏈湴鍥惧簱">
       <section class="panel saved-gallery-panel">
         <header class="panel-head gallery-head">
           <div>
-            <p class="eyebrow">图库</p>
-            <p class="hint">生成成功后默认仅自己可见，可选择公开到公开图库。</p>
+            <p class="eyebrow">鍥惧簱</p>
+            <p class="hint">鐢熸垚鎴愬姛鍚庨粯璁や粎鑷繁鍙锛屽彲閫夋嫨鍏紑鍒板叕寮€鍥惧簱銆?/p>
           </div>
           <div class="gallery-actions">
-            <button id="refreshGallery" class="ghost">刷新图库</button>
+            <button id="refreshGallery" class="ghost">鍒锋柊鍥惧簱</button>
           </div>
         </header>
 
-        <div class="gallery-scope-tabs" id="galleryScopeTabs" role="tablist" aria-label="图库范围">
+        <div class="gallery-scope-tabs" id="galleryScopeTabs" role="tablist" aria-label="鍥惧簱鑼冨洿">
           <button class="gallery-scope-tab active" type="button" data-gallery-scope="mine" role="tab" aria-selected="true">
-            我的图库 <span id="galleryMineCount" class="soft-count">0</span>
+            鎴戠殑鍥惧簱 <span id="galleryMineCount" class="soft-count">0</span>
           </button>
           <button class="gallery-scope-tab" type="button" data-gallery-scope="public" role="tab" aria-selected="false">
-            公开图库 <span id="galleryPublicCount" class="soft-count">0</span>
+            鍏紑鍥惧簱 <span id="galleryPublicCount" class="soft-count">0</span>
           </button>
         </div>
         <div class="gallery-summary" id="gallerySummary" aria-live="polite" hidden></div>
         <div id="savedGallery" class="gallery saved-gallery" data-empty="true">
           <div class="empty-state">
-            <div class="empty-icon" aria-hidden="true">▦</div>
-            <p>正在加载本地图库…</p>
+            <div class="empty-icon" aria-hidden="true">鈻?/div>
+            <p>姝ｅ湪鍔犺浇鏈湴鍥惧簱鈥?/p>
           </div>
         </div>
       </section>
@@ -433,94 +433,94 @@
       <section class="panel config-grid">
         <div class="system-default-panel span-all">
           <div>
-            <p class="eyebrow">系统默认接口</p>
-            <h3>默认使用管理员配置的全局接口</h3>
-            <p class="hint">配置菜单下方默认展示系统默认接口；只有开启“覆盖系统默认”后，个人接口才会用于生成。</p>
+            <p class="eyebrow">绯荤粺榛樿鎺ュ彛</p>
+            <h3>榛樿浣跨敤绠＄悊鍛橀厤缃殑鍏ㄥ眬鎺ュ彛</h3>
+            <p class="hint">閰嶇疆鑿滃崟涓嬫柟榛樿灞曠ず绯荤粺榛樿鎺ュ彛锛涘彧鏈夊紑鍚€滆鐩栫郴缁熼粯璁も€濆悗锛屼釜浜烘帴鍙ｆ墠浼氱敤浜庣敓鎴愩€?/p>
           </div>
           <div id="systemDefaultCard" class="system-default-card" aria-live="polite"></div>
           <div class="system-default-actions">
             <label class="switch-row">
               <input id="overrideSystemDefault" type="checkbox" />
-              <span>覆盖系统默认，使用我的接口配置</span>
+              <span>瑕嗙洊绯荤粺榛樿锛屼娇鐢ㄦ垜鐨勬帴鍙ｉ厤缃?/span>
             </label>
-            <button id="refreshSystemDefault" class="ghost small" type="button">刷新系统默认</button>
+            <button id="refreshSystemDefault" class="ghost small" type="button">鍒锋柊绯荤粺榛樿</button>
           </div>
         </div>
 
         <aside class="profile-list-panel">
           <header class="panel-head">
             <div>
-              <p class="eyebrow">配置</p>
-              <h2 id="configHeading">接口配置</h2>
+              <p class="eyebrow">閰嶇疆</p>
+              <h2 id="configHeading">鎺ュ彛閰嶇疆</h2>
             </div>
-            <button id="newProfile" class="ghost">+ 新建</button>
+            <button id="newProfile" class="ghost">+ 鏂板缓</button>
           </header>
-          <ul id="profileList" class="profile-list" aria-label="配置列表"></ul>
+          <ul id="profileList" class="profile-list" aria-label="閰嶇疆鍒楄〃"></ul>
         </aside>
 
         <form class="profile-form" id="profileForm" autocomplete="off">
           <div class="form-grid">
-            <label class="field"><span>名称</span>
-              <input id="profileName" placeholder="例如：OpenAI 官方" />
+            <label class="field"><span>鍚嶇О</span>
+              <input id="profileName" placeholder="渚嬪锛歄penAI 瀹樻柟" />
             </label>
-            <label class="field"><span>状态</span>
+            <label class="field"><span>鐘舵€?/span>
               <select id="profileStatus">
-                <option value="active">启用</option>
-                <option value="draft">草稿</option>
-                <option value="paused">暂停</option>
+                <option value="active">鍚敤</option>
+                <option value="draft">鑽夌</option>
+                <option value="paused">鏆傚仠</option>
               </select>
             </label>
             <div class="config-section span-2">
-              <h3>生图模型</h3>
-              <p class="hint">用于生成图片，调用 OpenAI-compatible <code>/v1/images/generations</code>。</p>
+              <h3>鐢熷浘妯″瀷</h3>
+              <p class="hint">鐢ㄤ簬鐢熸垚鍥剧墖锛岃皟鐢?OpenAI-compatible <code>/v1/images/generations</code>銆?/p>
             </div>
-            <label class="field span-2"><span>生图 Base URL</span>
-              <input id="imageBaseUrl" placeholder="https://api.openai.com 或 https://gateway/openai" />
+            <label class="field span-2"><span>鐢熷浘 Base URL</span>
+              <input id="imageBaseUrl" placeholder="https://api.openai.com 鎴?https://gateway/openai" />
             </label>
-            <label class="field span-2"><span>生图 API Key</span>
+            <label class="field span-2"><span>鐢熷浘 API Key</span>
               <input id="imageApiKey" type="password" placeholder="sk-..." autocomplete="off" />
-              <small class="secret-runtime-note">API Key 不会写入本地存储；刷新或关闭页面后需要重新填写。</small>
+              <small class="secret-runtime-note">API Key 涓嶄細鍐欏叆鏈湴瀛樺偍锛涘埛鏂版垨鍏抽棴椤甸潰鍚庨渶瑕侀噸鏂板～鍐欍€?/small>
             </label>
-            <label class="field"><span>生图默认模型</span>
+            <label class="field"><span>鐢熷浘榛樿妯″瀷</span>
               <input id="imageDefaultModel" placeholder="gpt-image-2" />
             </label>
-            <label class="field"><span>生图连通性</span>
-              <div class="test-result" id="imageTestResult" data-state="idle">未测试</div>
+            <label class="field"><span>鐢熷浘杩為€氭€?/span>
+              <div class="test-result" id="imageTestResult" data-state="idle">鏈祴璇?/div>
             </label>
 
             <div class="config-section span-2">
-              <h3>对话模型</h3>
-              <p class="hint">用于 Prompt Assist / 对话能力，调用 OpenAI-compatible <code>/v1/chat/completions</code>。</p>
+              <h3>瀵硅瘽妯″瀷</h3>
+              <p class="hint">鐢ㄤ簬 Prompt Assist / 瀵硅瘽鑳藉姏锛岃皟鐢?OpenAI-compatible <code>/v1/chat/completions</code>銆?/p>
             </div>
-            <label class="field span-2"><span>对话 Base URL</span>
-              <input id="chatBaseUrl" placeholder="https://api.openai.com 或 https://gateway/openai" />
+            <label class="field span-2"><span>瀵硅瘽 Base URL</span>
+              <input id="chatBaseUrl" placeholder="https://api.openai.com 鎴?https://gateway/openai" />
             </label>
-            <label class="field span-2"><span>对话 API Key</span>
+            <label class="field span-2"><span>瀵硅瘽 API Key</span>
               <input id="chatApiKey" type="password" placeholder="sk-..." autocomplete="off" />
-              <small class="secret-runtime-note">API Key 仅保留在当前页面内存；保存配置不会持久化密钥。</small>
+              <small class="secret-runtime-note">API Key 浠呬繚鐣欏湪褰撳墠椤甸潰鍐呭瓨锛涗繚瀛橀厤缃笉浼氭寔涔呭寲瀵嗛挜銆?/small>
             </label>
-            <label class="field"><span>对话默认模型</span>
+            <label class="field"><span>瀵硅瘽榛樿妯″瀷</span>
               <input id="chatDefaultModel" placeholder="gpt-5.5" />
             </label>
-            <label class="field"><span>对话连通性</span>
-              <div class="test-result" id="chatTestResult" data-state="idle">未测试</div>
+            <label class="field"><span>瀵硅瘽杩為€氭€?/span>
+              <div class="test-result" id="chatTestResult" data-state="idle">鏈祴璇?/div>
             </label>
           </div>
 
 
           <div class="row wrap-row action-row">
-            <button id="saveProfile" class="primary" type="button">保存配置</button>
-            <button id="testProfile" class="ghost" type="button">测试全部</button>
-            <button id="testImageProfile" class="ghost" type="button">测试生图</button>
-            <button id="testChatProfile" class="ghost" type="button">测试对话</button>
-            <button id="deleteProfile" class="danger ghost" type="button">删除</button>
+            <button id="saveProfile" class="primary" type="button">淇濆瓨閰嶇疆</button>
+            <button id="testProfile" class="ghost" type="button">娴嬭瘯鍏ㄩ儴</button>
+            <button id="testImageProfile" class="ghost" type="button">娴嬭瘯鐢熷浘</button>
+            <button id="testChatProfile" class="ghost" type="button">娴嬭瘯瀵硅瘽</button>
+            <button id="deleteProfile" class="danger ghost" type="button">鍒犻櫎</button>
           </div>
         </form>
 
         <aside class="summary-panel">
-          <p class="eyebrow">概览</p>
+          <p class="eyebrow">姒傝</p>
           <div class="summary-grid" id="profileSummary"></div>
-          <p class="hint summary-note">非密钥配置保存在当前浏览器 localStorage；API Key 仅保留在当前页面内存中，日志中以 <code>sk-p••••abcd</code> 的形式脱敏展示。</p>
+          <p class="hint summary-note">闈炲瘑閽ラ厤缃繚瀛樺湪褰撳墠娴忚鍣?localStorage锛汚PI Key 浠呬繚鐣欏湪褰撳墠椤甸潰鍐呭瓨涓紝鏃ュ織涓互 <code>sk-p鈥⑩€⑩€⑩€bcd</code> 鐨勫舰寮忚劚鏁忓睍绀恒€?/p>
         </aside>
       </section>
     </section>
@@ -532,24 +532,24 @@
       <section class="panel logs-panel">
         <header class="panel-head logs-head">
           <div>
-            <p class="eyebrow">请求日志</p>
-            <h2 id="logsHeading">日志面板</h2>
-            <p class="hint">本地 localStorage 保留最近 300 条。API Key 以脱敏形式记录。</p>
+            <p class="eyebrow">璇锋眰鏃ュ織</p>
+            <h2 id="logsHeading">鏃ュ織闈㈡澘</h2>
+            <p class="hint">鏈湴 localStorage 淇濈暀鏈€杩?300 鏉°€侫PI Key 浠ヨ劚鏁忓舰寮忚褰曘€?/p>
           </div>
           <div class="logs-actions">
-            <label class="inline-label">搜索
-              <input id="logSearch" placeholder="模型 / URL / Prompt / 错误" />
+            <label class="inline-label">鎼滅储
+              <input id="logSearch" placeholder="妯″瀷 / URL / Prompt / 閿欒" />
             </label>
-            <button id="exportLogs" class="ghost">导出 JSON</button>
-            <button id="clearLogs" class="danger ghost">清空</button>
+            <button id="exportLogs" class="ghost">瀵煎嚭 JSON</button>
+            <button id="clearLogs" class="danger ghost">娓呯┖</button>
           </div>
         </header>
 
         <div class="log-summary" id="logSummary" aria-live="polite"></div>
         <div id="logList" class="log-list" data-empty="true">
           <div class="empty-state">
-            <div class="empty-icon" aria-hidden="true">▤</div>
-            <p>还没有日志。发起一次生成后，请求与响应会自动记录在这里。</p>
+            <div class="empty-icon" aria-hidden="true">鈻?/div>
+            <p>杩樻病鏈夋棩蹇椼€傚彂璧蜂竴娆＄敓鎴愬悗锛岃姹備笌鍝嶅簲浼氳嚜鍔ㄨ褰曞湪杩欓噷銆?/p>
           </div>
         </div>
       </section>
@@ -566,14 +566,14 @@
         <header class="usage-head">
           <div>
             <p class="eyebrow">Usage</p>
-            <h2 id="usageHeading">用量看板</h2>
+            <h2 id="usageHeading">鐢ㄩ噺鐪嬫澘</h2>
           </div>
           <div class="usage-actions">
-            <span class="sub" id="windowLabel">最近 5 小时</span>
-            <button class="btn active" data-hours="5" type="button">5 小时</button>
-            <button class="btn" data-hours="24" type="button">24 小时</button>
-            <button class="btn" data-hours="72" type="button">3 天</button>
-            <button class="btn" id="usageRefresh" type="button">刷新</button>
+            <span class="sub" id="windowLabel">鏈€杩?5 灏忔椂</span>
+            <button class="btn active" data-hours="5" type="button">5 灏忔椂</button>
+            <button class="btn" data-hours="24" type="button">24 灏忔椂</button>
+            <button class="btn" data-hours="72" type="button">3 澶?/button>
+            <button class="btn" id="usageRefresh" type="button">鍒锋柊</button>
           </div>
         </header>
 
@@ -581,27 +581,27 @@
 
         <section class="card">
           <div class="card-head">
-            <strong>按小时请求量</strong>
+            <strong>鎸夊皬鏃惰姹傞噺</strong>
             <span class="sub" id="chartHint"></span>
           </div>
           <div class="chart" id="chart"></div>
           <div class="axis" id="axis"></div>
           <div class="legend">
-            <span><i class="dot ok"></i>成功</span>
-            <span><i class="dot cancelled"></i>取消</span>
-            <span><i class="dot failed"></i>失败</span>
+            <span><i class="dot ok"></i>鎴愬姛</span>
+            <span><i class="dot cancelled"></i>鍙栨秷</span>
+            <span><i class="dot failed"></i>澶辫触</span>
           </div>
         </section>
 
         <div class="row2 mt">
           <section class="card">
-            <strong>账号分布</strong>
+            <strong>璐﹀彿鍒嗗竷</strong>
             <div id="accounts" class="cell-card"></div>
           </section>
           <section class="card">
-            <strong>Codex 额度窗口</strong>
+            <strong>Codex 棰濆害绐楀彛</strong>
             <div id="codex" class="cell-card"></div>
-            <p class="sub">剩余比例来自 Codex 用量接口；tokens 为窗口内估算消耗，真实出图量看左侧请求数。</p>
+            <p class="sub">鍓╀綑姣斾緥鏉ヨ嚜 Codex 鐢ㄩ噺鎺ュ彛锛泃okens 涓虹獥鍙ｅ唴浼扮畻娑堣€楋紝鐪熷疄鍑哄浘閲忕湅宸︿晶璇锋眰鏁般€?/p>
           </section>
         </div>
 
@@ -612,7 +612,7 @@
             <div id="studioUsers" class="cell-card"></div>
           </section>
           <section class="card">
-            <strong>失败请求</strong>
+            <strong>澶辫触璇锋眰</strong>
             <div id="errors" class="cell-card"></div>
           </section>
         </div>
@@ -623,7 +623,7 @@
 
     <section id="usersPanel" class="tab-panel" data-admin-only hidden aria-labelledby="managementHeading">
       <div class="panel management-panel">
-        <nav class="management-tabs" role="tablist" aria-label="管理菜单">
+        <nav class="management-tabs" role="tablist" aria-label="绠＄悊鑿滃崟">
           <button
             class="management-tab active"
             id="managementTabUsers"
@@ -632,7 +632,7 @@
             aria-controls="usersManagement"
             aria-selected="true"
             data-management-tab="usersManagement"
-          >用户管理</button>
+          >鐢ㄦ埛绠＄悊</button>
           <button
             class="management-tab"
             id="managementTabRegistration"
@@ -641,7 +641,7 @@
             aria-controls="registrationManagement"
             aria-selected="false"
             data-management-tab="registrationManagement"
-          >注册与兑换码</button>
+          >娉ㄥ唽涓庡厬鎹㈢爜</button>
           <button
             class="management-tab"
             id="managementTabQuota"
@@ -650,7 +650,7 @@
             aria-controls="quotaManagement"
             aria-selected="false"
             data-management-tab="quotaManagement"
-          >额度管理</button>
+          >棰濆害绠＄悊</button>
           <button
             class="management-tab"
             id="managementTabJobs"
@@ -659,7 +659,7 @@
             aria-controls="jobManagement"
             aria-selected="false"
             data-management-tab="jobManagement"
-          >生成队列</button>
+          >鐢熸垚闃熷垪</button>
           <button
             class="management-tab"
             id="managementTabClientLogs"
@@ -668,7 +668,7 @@
             aria-controls="clientLogManagement"
             aria-selected="false"
             data-management-tab="clientLogManagement"
-          >客户端日志</button>
+          >瀹㈡埛绔棩蹇?/button>
           <button
             class="management-tab"
             id="managementTabInterfaces"
@@ -677,7 +677,7 @@
             aria-controls="interfaceManagement"
             aria-selected="false"
             data-management-tab="interfaceManagement"
-          >接口管理</button>
+          >鎺ュ彛绠＄悊</button>
           <button
             class="management-tab"
             id="managementTabGallery"
@@ -686,36 +686,36 @@
             aria-controls="galleryManagement"
             aria-selected="false"
             data-management-tab="galleryManagement"
-          >图库管理</button>
+          >鍥惧簱绠＄悊</button>
         </nav>
 
         <section id="usersManagement" class="management-pane active" role="tabpanel" aria-labelledby="managementTabUsers">
           <header class="panel-head">
             <div>
-              <p class="eyebrow">用户管理</p>
-              <h2 id="managementHeading">用户</h2>
+              <p class="eyebrow">鐢ㄦ埛绠＄悊</p>
+              <h2 id="managementHeading">鐢ㄦ埛</h2>
             </div>
             <div class="management-actions">
-              <button class="primary small" id="usersCreate">+ 新建用户</button>
-              <button class="ghost small" id="usersRefresh">刷新</button>
+              <button class="primary small" id="usersCreate">+ 鏂板缓鐢ㄦ埛</button>
+              <button class="ghost small" id="usersRefresh">鍒锋柊</button>
             </div>
           </header>
           <div class="users-toolbar">
-            <label class="inline-label">搜索
-              <input id="usersSearch" placeholder="用户名 / 邮箱 / ID" autocomplete="off" />
+            <label class="inline-label">鎼滅储
+              <input id="usersSearch" placeholder="鐢ㄦ埛鍚?/ 閭 / ID" autocomplete="off" />
             </label>
-            <label class="inline-label">角色
+            <label class="inline-label">瑙掕壊
               <select id="usersRoleFilter">
-                <option value="all">全部角色</option>
-                <option value="admin">管理员</option>
-                <option value="user">普通用户</option>
+                <option value="all">鍏ㄩ儴瑙掕壊</option>
+                <option value="admin">绠＄悊鍛?/option>
+                <option value="user">鏅€氱敤鎴?/option>
               </select>
             </label>
-            <label class="inline-label">状态
+            <label class="inline-label">鐘舵€?
               <select id="usersStatusFilter">
-                <option value="all">全部状态</option>
-                <option value="active">启用</option>
-                <option value="disabled">停用</option>
+                <option value="all">鍏ㄩ儴鐘舵€?/option>
+                <option value="active">鍚敤</option>
+                <option value="disabled">鍋滅敤</option>
               </select>
             </label>
             <span class="users-summary" id="usersSummary" aria-live="polite"></span>
@@ -727,13 +727,13 @@
         <section id="registrationManagement" class="management-pane" role="tabpanel" aria-labelledby="managementTabRegistration" hidden>
           <header class="panel-head">
             <div>
-              <p class="eyebrow">注册与兑换码</p>
-              <h2>注册与邀请码 / 兑换码</h2>
-              <p class="hint">通过 UI 控制免邀请码注册、邀请码注册和邀请码使用次数；停用或重置邀请码不会影响已注册用户。</p>
+              <p class="eyebrow">娉ㄥ唽涓庡厬鎹㈢爜</p>
+              <h2>娉ㄥ唽涓庨個璇风爜 / 鍏戞崲鐮?/h2>
+              <p class="hint">閫氳繃 UI 鎺у埗鍏嶉個璇风爜娉ㄥ唽銆侀個璇风爜娉ㄥ唽鍜岄個璇风爜浣跨敤娆℃暟锛涘仠鐢ㄦ垨閲嶇疆閭€璇风爜涓嶄細褰卞搷宸叉敞鍐岀敤鎴枫€?/p>
             </div>
             <div class="management-actions">
-              <button class="ghost small" id="registrationRefresh" type="button">刷新</button>
-              <button class="primary small" id="registrationSave" type="button">保存注册设置</button>
+              <button class="ghost small" id="registrationRefresh" type="button">鍒锋柊</button>
+              <button class="primary small" id="registrationSave" type="button">淇濆瓨娉ㄥ唽璁剧疆</button>
             </div>
           </header>
 
@@ -742,41 +742,41 @@
           <form class="profile-form admin-registration-form" id="registrationForm" autocomplete="off">
             <div class="form-grid">
               <div class="field span-2 switch-field">
-                <span>允许新用户注册</span>
+                <span>鍏佽鏂扮敤鎴锋敞鍐?/span>
                 <label class="switch-row">
                   <input id="registrationAllowPublic" type="checkbox" />
-                  <span>开启后，用户可不填写邀请码直接注册普通账号。</span>
+                  <span>寮€鍚悗锛岀敤鎴峰彲涓嶅～鍐欓個璇风爜鐩存帴娉ㄥ唽鏅€氳处鍙枫€?/span>
                 </label>
               </div>
               <div class="field span-2 switch-field">
-                <span>允许通过邀请码注册</span>
+                <span>鍏佽閫氳繃閭€璇风爜娉ㄥ唽</span>
                 <label class="switch-row">
                   <input id="registrationAllowInvite" type="checkbox" />
-                  <span>开启后，用户可填写有效邀请码注册；若关闭免邀请码注册，则邀请码为必填。</span>
+                  <span>寮€鍚悗锛岀敤鎴峰彲濉啓鏈夋晥閭€璇风爜娉ㄥ唽锛涜嫢鍏抽棴鍏嶉個璇风爜娉ㄥ唽锛屽垯閭€璇风爜涓哄繀濉€?/span>
                 </label>
               </div>
               <label class="field">
-                <span>邀请码可使用次数（默认 1）</span>
+                <span>閭€璇风爜鍙娇鐢ㄦ鏁帮紙榛樿 1锛?/span>
                 <input id="registrationDefaultInviteUses" type="number" min="1" step="1" value="1" />
               </label>
               <label class="field">
-                <span>邀请码有效期（天，默认 30）</span>
+                <span>閭€璇风爜鏈夋晥鏈燂紙澶╋紝榛樿 30锛?/span>
                 <input id="registrationDefaultInviteTtlDays" type="number" min="1" max="3650" step="1" value="30" />
               </label>
               <label class="field">
-                <span>批量生成数量</span>
+                <span>鎵归噺鐢熸垚鏁伴噺</span>
                 <input id="registrationGenerateCount" type="number" min="1" max="500" step="1" value="10" />
               </label>
               <div class="field span-2">
-                <span>邀请码操作</span>
+                <span>閭€璇风爜鎿嶄綔</span>
                 <div class="row wrap-row action-row">
-                  <button class="ghost" id="registrationGenerate" type="button">批量生成邀请码</button>
-                  <button class="danger ghost" id="registrationResetInvites" type="button">重置邀请码</button>
+                  <button class="ghost" id="registrationGenerate" type="button">鎵归噺鐢熸垚閭€璇风爜</button>
+                  <button class="danger ghost" id="registrationResetInvites" type="button">閲嶇疆閭€璇风爜</button>
                 </div>
               </div>
               <label class="field span-2">
-                <span>本次生成的邀请码（仅生成后展示，便于复制）</span>
-                <textarea id="registrationGeneratedCodes" rows="4" readonly placeholder="生成后会显示在这里"></textarea>
+                <span>鏈鐢熸垚鐨勯個璇风爜锛堜粎鐢熸垚鍚庡睍绀猴紝渚夸簬澶嶅埗锛?/span>
+                <textarea id="registrationGeneratedCodes" rows="4" readonly placeholder="鐢熸垚鍚庝細鏄剧ず鍦ㄨ繖閲?></textarea>
               </label>
             </div>
           </form>
@@ -784,20 +784,20 @@
           <form class="profile-form admin-registration-cleanup-form" id="registrationCleanupForm" autocomplete="off">
             <div class="form-grid">
               <label class="field">
-                <span>清理此日期前的兑换记录</span>
+                <span>娓呯悊姝ゆ棩鏈熷墠鐨勫厬鎹㈣褰?/span>
                 <input id="registrationCleanupBefore" type="date" />
               </label>
               <div class="field span-2 switch-field">
-                <span>同步清理未使用兑换码</span>
+                <span>鍚屾娓呯悊鏈娇鐢ㄥ厬鎹㈢爜</span>
                 <label class="switch-row">
                   <input id="registrationCleanupDisableUnused" type="checkbox" />
-                  <span>清理记录时，同时停用该日期前创建且从未使用的邀请码。</span>
+                  <span>娓呯悊璁板綍鏃讹紝鍚屾椂鍋滅敤璇ユ棩鏈熷墠鍒涘缓涓斾粠鏈娇鐢ㄧ殑閭€璇风爜銆?/span>
                 </label>
               </div>
               <div class="field span-2">
-                <span>兑换记录操作</span>
+                <span>鍏戞崲璁板綍鎿嶄綔</span>
                 <div class="row wrap-row action-row">
-                  <button class="danger ghost" id="registrationCleanup" type="button">清理兑换记录</button>
+                  <button class="danger ghost" id="registrationCleanup" type="button">娓呯悊鍏戞崲璁板綍</button>
                 </div>
               </div>
             </div>
@@ -810,39 +810,39 @@
         <section id="quotaManagement" class="management-pane" role="tabpanel" aria-labelledby="managementTabQuota" hidden>
           <header class="panel-head">
             <div>
-              <p class="eyebrow">额度管理</p>
-              <h2>额度</h2>
+              <p class="eyebrow">棰濆害绠＄悊</p>
+              <h2>棰濆害</h2>
             </div>
             <div class="management-actions">
-              <button class="ghost small" id="quotaRefresh">刷新</button>
+              <button class="ghost small" id="quotaRefresh">鍒锋柊</button>
             </div>
           </header>
-          <p class="quota-defaults-hint">日/月次数限制系统默认接口调用（含生图与提示词优化）；存储与并发同时限制系统默认和个人自定义接口（管理员生成豁免；留空 = 不限，失焦自动保存）</p>
+          <p class="quota-defaults-hint">鏃?鏈堟鏁伴檺鍒剁郴缁熼粯璁ゆ帴鍙ｈ皟鐢紙鍚敓鍥句笌鎻愮ず璇嶄紭鍖栵級锛涘瓨鍌ㄤ笌骞跺彂鍚屾椂闄愬埗绯荤粺榛樿鍜屼釜浜鸿嚜瀹氫箟鎺ュ彛锛堢鐞嗗憳鐢熸垚璞佸厤锛涚暀绌?= 涓嶉檺锛屽け鐒﹁嚜鍔ㄤ繚瀛橈級</p>
           <div id="quotaDefaultsCard" class="quota-defaults-card"></div>
 
           <div class="quota-dept-card">
             <div class="quota-dept-head">
               <div>
-                <strong>部门默认额度</strong>
-                <p class="hint">个人覆盖优先；没有个人覆盖时继承部门，最后回落到全站默认。</p>
+                <strong>閮ㄩ棬榛樿棰濆害</strong>
+                <p class="hint">涓汉瑕嗙洊浼樺厛锛涙病鏈変釜浜鸿鐩栨椂缁ф壙閮ㄩ棬锛屾渶鍚庡洖钀藉埌鍏ㄧ珯榛樿銆?/p>
               </div>
             </div>
             <div id="quotaDepartmentList" class="quota-dept-list"></div>
             <div class="quota-dept-form">
-              <input id="quotaDeptName" placeholder="部门名称" maxlength="80" autocomplete="off" />
-              <input id="quotaDeptMonthly" type="number" min="0" placeholder="每月次数" />
-              <input id="quotaDeptDaily" type="number" min="0" placeholder="每日次数" />
-              <button class="ghost small" id="quotaDeptSave" type="button">保存部门额度</button>
+              <input id="quotaDeptName" placeholder="閮ㄩ棬鍚嶇О" maxlength="80" autocomplete="off" />
+              <input id="quotaDeptMonthly" type="number" min="0" placeholder="姣忔湀娆℃暟" />
+              <input id="quotaDeptDaily" type="number" min="0" placeholder="姣忔棩娆℃暟" />
+              <button class="ghost small" id="quotaDeptSave" type="button">淇濆瓨閮ㄩ棬棰濆害</button>
             </div>
           </div>
 
           <div id="quotaBulkBar" class="admin-gallery-bulk quota-bulk" hidden>
-            <span id="quotaBulkCount">已选 0 人</span>
-            <button class="ghost small" id="quotaBulkClear">取消选择</button>
-            <button class="ghost small" id="quotaBulkEdit">批量编辑额度</button>
-            <button class="ghost small" id="quotaBulkResetToday">批量重置今日</button>
-            <button class="ghost small" id="quotaBulkResetMonth">批量重置本月</button>
-            <button class="danger ghost small" id="quotaBulkRestore">批量恢复默认</button>
+            <span id="quotaBulkCount">宸查€?0 浜?/span>
+            <button class="ghost small" id="quotaBulkClear">鍙栨秷閫夋嫨</button>
+            <button class="ghost small" id="quotaBulkEdit">鎵归噺缂栬緫棰濆害</button>
+            <button class="ghost small" id="quotaBulkResetToday">鎵归噺閲嶇疆浠婃棩</button>
+            <button class="ghost small" id="quotaBulkResetMonth">鎵归噺閲嶇疆鏈湀</button>
+            <button class="danger ghost small" id="quotaBulkRestore">鎵归噺鎭㈠榛樿</button>
           </div>
 
           <div id="quotaTableWrap"></div>
@@ -851,13 +851,13 @@
         <section id="jobManagement" class="management-pane" role="tabpanel" aria-labelledby="managementTabJobs" hidden>
           <header class="panel-head">
             <div>
-              <p class="eyebrow">生成队列</p>
-              <h2>队列调度</h2>
-              <p class="hint">控制单进程调度器、查看全局排队与最近执行结果。</p>
+              <p class="eyebrow">鐢熸垚闃熷垪</p>
+              <h2>闃熷垪璋冨害</h2>
+              <p class="hint">鎺у埗鍗曡繘绋嬭皟搴﹀櫒銆佹煡鐪嬪叏灞€鎺掗槦涓庢渶杩戞墽琛岀粨鏋溿€?/p>
             </div>
             <div class="management-actions">
-              <button class="ghost small" id="adminJobsRefresh" type="button">刷新</button>
-              <button class="primary small" id="adminJobsSaveSettings" type="button">保存队列设置</button>
+              <button class="ghost small" id="adminJobsRefresh" type="button">鍒锋柊</button>
+              <button class="primary small" id="adminJobsSaveSettings" type="button">淇濆瓨闃熷垪璁剧疆</button>
             </div>
           </header>
 
@@ -870,31 +870,31 @@
           <header class="panel-head">
             <div>
               <p class="eyebrow">Client Logs</p>
-              <h2>客户端详细日志</h2>
-              <p class="hint">查看用户浏览器自动同步的本地日志、错误堆栈与上下文，便于复现和修复问题。</p>
+              <h2>瀹㈡埛绔缁嗘棩蹇?/h2>
+              <p class="hint">鏌ョ湅鐢ㄦ埛娴忚鍣ㄨ嚜鍔ㄥ悓姝ョ殑鏈湴鏃ュ織銆侀敊璇爢鏍堜笌涓婁笅鏂囷紝渚夸簬澶嶇幇鍜屼慨澶嶉棶棰樸€?/p>
             </div>
             <div class="management-actions">
-              <button class="ghost small" id="adminClientLogsRefresh" type="button">刷新</button>
+              <button class="ghost small" id="adminClientLogsRefresh" type="button">鍒锋柊</button>
             </div>
           </header>
 
           <div class="users-toolbar admin-client-log-toolbar">
-            <label class="inline-label">用户
+            <label class="inline-label">鐢ㄦ埛
               <select id="adminClientLogUserFilter">
-                <option value="">全部用户</option>
+                <option value="">鍏ㄩ儴鐢ㄦ埛</option>
               </select>
             </label>
-            <label class="inline-label">等级
+            <label class="inline-label">绛夌骇
               <select id="adminClientLogLevelFilter">
-                <option value="">全部等级</option>
+                <option value="">鍏ㄩ儴绛夌骇</option>
                 <option value="error">Error</option>
                 <option value="warn">Warn</option>
                 <option value="info">Info</option>
                 <option value="debug">Debug</option>
               </select>
             </label>
-            <label class="inline-label">关键字
-              <input id="adminClientLogSearch" placeholder="消息 / meta / URL / 用户" autocomplete="off" />
+            <label class="inline-label">鍏抽敭瀛?
+              <input id="adminClientLogSearch" placeholder="娑堟伅 / meta / URL / 鐢ㄦ埛" autocomplete="off" />
             </label>
             <span class="users-summary" id="adminClientLogsSummary" aria-live="polite"></span>
           </div>
@@ -905,13 +905,13 @@
         <section id="interfaceManagement" class="management-pane" role="tabpanel" aria-labelledby="managementTabInterfaces" hidden>
           <header class="panel-head">
             <div>
-              <p class="eyebrow">接口管理</p>
-              <h2>全局默认接口</h2>
-              <p class="hint">普通用户未开启个人覆盖时，会使用这里保存的默认接口；密钥只保存在服务端，不回显给前端。</p>
+              <p class="eyebrow">鎺ュ彛绠＄悊</p>
+              <h2>鍏ㄥ眬榛樿鎺ュ彛</h2>
+              <p class="hint">鏅€氱敤鎴锋湭寮€鍚釜浜鸿鐩栨椂锛屼細浣跨敤杩欓噷淇濆瓨鐨勯粯璁ゆ帴鍙ｏ紱瀵嗛挜鍙繚瀛樺湪鏈嶅姟绔紝涓嶅洖鏄剧粰鍓嶇銆?/p>
             </div>
             <div class="management-actions">
-              <button class="ghost small" id="globalInterfaceRefresh" type="button">刷新</button>
-              <button class="primary small" id="globalInterfaceSave" type="button">保存默认接口</button>
+              <button class="ghost small" id="globalInterfaceRefresh" type="button">鍒锋柊</button>
+              <button class="primary small" id="globalInterfaceSave" type="button">淇濆瓨榛樿鎺ュ彛</button>
             </div>
           </header>
 
@@ -920,53 +920,53 @@
           <form class="profile-form admin-interface-form" id="globalInterfaceForm" autocomplete="off">
             <div class="form-grid">
               <div class="field span-2 switch-field">
-                <span>启用系统默认接口</span>
+                <span>鍚敤绯荤粺榛樿鎺ュ彛</span>
                 <label class="switch-row">
                   <input id="globalInterfaceEnabled" type="checkbox" />
-                  <span>启用后，未覆盖的用户可直接使用全局默认接口</span>
+                  <span>鍚敤鍚庯紝鏈鐩栫殑鐢ㄦ埛鍙洿鎺ヤ娇鐢ㄥ叏灞€榛樿鎺ュ彛</span>
                 </label>
               </div>
-              <label class="field span-2"><span>默认接口名称</span>
-                <input id="globalInterfaceName" placeholder="系统默认" />
+              <label class="field span-2"><span>榛樿鎺ュ彛鍚嶇О</span>
+                <input id="globalInterfaceName" placeholder="绯荤粺榛樿" />
               </label>
 
               <div class="config-section span-2">
-                <h3>生图默认接口</h3>
-                <p class="hint">用于 <code>/v1/images/generations</code>；API Key 留空表示保留已保存密钥。</p>
+                <h3>鐢熷浘榛樿鎺ュ彛</h3>
+                <p class="hint">鐢ㄤ簬 <code>/v1/images/generations</code>锛汚PI Key 鐣欑┖琛ㄧず淇濈暀宸蹭繚瀛樺瘑閽ャ€?/p>
               </div>
-              <label class="field span-2"><span>生图 Base URL</span>
+              <label class="field span-2"><span>鐢熷浘 Base URL</span>
                 <input id="globalImageBaseUrl" placeholder="https://api.openai.com" />
               </label>
-              <label class="field span-2"><span>生图 API Key</span>
-                <input id="globalImageApiKey" type="password" placeholder="未配置；或留空保留现有密钥" autocomplete="off" />
+              <label class="field span-2"><span>鐢熷浘 API Key</span>
+                <input id="globalImageApiKey" type="password" placeholder="鏈厤缃紱鎴栫暀绌轰繚鐣欑幇鏈夊瘑閽? autocomplete="off" />
               </label>
-              <label class="field"><span>生图默认模型</span>
+              <label class="field"><span>鐢熷浘榛樿妯″瀷</span>
                 <input id="globalImageDefaultModel" placeholder="gpt-image-2" />
               </label>
-              <label class="field"><span>生图连通性</span>
-                <div class="test-result" id="globalImageTestResult" data-state="idle">未测试</div>
+              <label class="field"><span>鐢熷浘杩為€氭€?/span>
+                <div class="test-result" id="globalImageTestResult" data-state="idle">鏈祴璇?/div>
               </label>
 
               <div class="config-section span-2">
-                <h3>对话默认接口</h3>
-                <p class="hint">用于 <code>/v1/chat/completions</code>；Prompt Assist 等能力可复用。</p>
+                <h3>瀵硅瘽榛樿鎺ュ彛</h3>
+                <p class="hint">鐢ㄤ簬 <code>/v1/chat/completions</code>锛汸rompt Assist 绛夎兘鍔涘彲澶嶇敤銆?/p>
               </div>
-              <label class="field span-2"><span>对话 Base URL</span>
+              <label class="field span-2"><span>瀵硅瘽 Base URL</span>
                 <input id="globalChatBaseUrl" placeholder="https://api.openai.com" />
               </label>
-              <label class="field span-2"><span>对话 API Key</span>
-                <input id="globalChatApiKey" type="password" placeholder="未配置；或留空保留现有密钥" autocomplete="off" />
+              <label class="field span-2"><span>瀵硅瘽 API Key</span>
+                <input id="globalChatApiKey" type="password" placeholder="鏈厤缃紱鎴栫暀绌轰繚鐣欑幇鏈夊瘑閽? autocomplete="off" />
               </label>
-              <label class="field"><span>对话默认模型</span>
+              <label class="field"><span>瀵硅瘽榛樿妯″瀷</span>
                 <input id="globalChatDefaultModel" placeholder="gpt-5.5" />
               </label>
-              <label class="field"><span>对话连通性</span>
-                <div class="test-result" id="globalChatTestResult" data-state="idle">未测试</div>
+              <label class="field"><span>瀵硅瘽杩為€氭€?/span>
+                <div class="test-result" id="globalChatTestResult" data-state="idle">鏈祴璇?/div>
               </label>
             </div>
             <div class="row wrap-row action-row">
-              <button id="globalTestImage" class="ghost" type="button">测试生图</button>
-              <button id="globalTestChat" class="ghost" type="button">测试对话</button>
+              <button id="globalTestImage" class="ghost" type="button">娴嬭瘯鐢熷浘</button>
+              <button id="globalTestChat" class="ghost" type="button">娴嬭瘯瀵硅瘽</button>
             </div>
           </form>
         </section>
@@ -974,12 +974,12 @@
         <section id="galleryManagement" class="management-pane" role="tabpanel" aria-labelledby="managementTabGallery" hidden>
           <header class="panel-head">
             <div>
-              <p class="eyebrow">图库管理</p>
-              <h2>图库</h2>
+              <p class="eyebrow">鍥惧簱绠＄悊</p>
+              <h2>鍥惧簱</h2>
             </div>
             <div class="management-actions">
-              <button class="ghost small" id="adminGalleryOrphans">孤儿扫描</button>
-              <button class="ghost small" id="adminGalleryRefresh">刷新</button>
+              <button class="ghost small" id="adminGalleryOrphans">瀛ゅ効鎵弿</button>
+              <button class="ghost small" id="adminGalleryRefresh">鍒锋柊</button>
             </div>
           </header>
 
@@ -987,40 +987,40 @@
           <div id="adminGallerySummary" class="management-summary" aria-live="polite"></div>
 
           <div class="users-toolbar admin-gallery-toolbar">
-            <label class="inline-label">用户
+            <label class="inline-label">鐢ㄦ埛
               <select id="adminGalleryUserFilter">
-                <option value="">全部用户</option>
+                <option value="">鍏ㄩ儴鐢ㄦ埛</option>
               </select>
             </label>
-            <label class="inline-label">模型
+            <label class="inline-label">妯″瀷
               <select id="adminGalleryModelFilter">
-                <option value="">全部模型</option>
+                <option value="">鍏ㄩ儴妯″瀷</option>
               </select>
             </label>
-            <label class="inline-label">关键字
-              <input id="adminGallerySearch" placeholder="prompt / 文件名 / 配置名" autocomplete="off" />
+            <label class="inline-label">鍏抽敭瀛?
+              <input id="adminGallerySearch" placeholder="prompt / 鏂囦欢鍚?/ 閰嶇疆鍚? autocomplete="off" />
             </label>
-            <label class="inline-label">起始日期
+            <label class="inline-label">璧峰鏃ユ湡
               <input id="adminGalleryFrom" type="date" />
             </label>
-            <label class="inline-label">截止日期
+            <label class="inline-label">鎴鏃ユ湡
               <input id="adminGalleryTo" type="date" />
             </label>
-            <label class="inline-label">排序
+            <label class="inline-label">鎺掑簭
               <select id="adminGallerySort">
-                <option value="createdAt:desc">最新优先</option>
-                <option value="createdAt:asc">最早优先</option>
-                <option value="bytes:desc">体积从大到小</option>
-                <option value="bytes:asc">体积从小到大</option>
+                <option value="createdAt:desc">鏈€鏂颁紭鍏?/option>
+                <option value="createdAt:asc">鏈€鏃╀紭鍏?/option>
+                <option value="bytes:desc">浣撶Н浠庡ぇ鍒板皬</option>
+                <option value="bytes:asc">浣撶Н浠庡皬鍒板ぇ</option>
               </select>
             </label>
             <span class="users-summary" id="adminGalleryFilterSummary" aria-live="polite"></span>
           </div>
 
           <div id="adminGalleryBulkBar" class="admin-gallery-bulk" hidden>
-            <span id="adminGalleryBulkCount">已选 0 张</span>
-            <button class="ghost small" id="adminGalleryBulkClear">取消选择</button>
-            <button class="danger ghost small" id="adminGalleryBulkDelete">批量删除</button>
+            <span id="adminGalleryBulkCount">宸查€?0 寮?/span>
+            <button class="ghost small" id="adminGalleryBulkClear">鍙栨秷閫夋嫨</button>
+            <button class="danger ghost small" id="adminGalleryBulkDelete">鎵归噺鍒犻櫎</button>
           </div>
 
           <div id="adminGalleryTableWrap"></div>
@@ -1038,9 +1038,9 @@
       <header class="app-drawer-head">
         <div>
           <p class="eyebrow" id="appDrawerEyebrow"></p>
-          <h2 id="appDrawerTitle">详情</h2>
+          <h2 id="appDrawerTitle">璇︽儏</h2>
         </div>
-        <button class="icon-button" data-drawer-close aria-label="关闭">×</button>
+        <button class="icon-button" data-drawer-close aria-label="鍏抽棴">脳</button>
       </header>
       <div class="app-drawer-body" id="appDrawerBody"></div>
     </section>

@@ -758,3 +758,30 @@ html[data-user-role="user"] [data-admin-only] { display: none !important; }
     overflow-y: auto;
   }
 }
+
+@media (min-width: 1000px) {
+  body.job-queue-visible #studioPanel .studio-results {
+    display: flex;
+    flex-direction: column;
+  }
+  body.job-queue-visible #studioPanel .studio-results #gallery {
+    flex: 1;
+    min-height: 0;
+  }
+  body.job-queue-visible #studioPanel .studio-results #gallery[data-empty="true"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  body.job-queue-visible #studioPanel .studio-results .empty-state {
+    width: min(520px, 100%);
+    padding: 64px 40px;
+  }
+  body.job-queue-visible #studioPanel .studio-controls {
+    display: flex;
+    flex-direction: column;
+  }
+  body.job-queue-visible #studioPanel .studio-controls .action-row {
+    margin-top: auto;
+  }
+}
