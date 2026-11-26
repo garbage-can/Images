@@ -8,7 +8,7 @@
   <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./styles.css?v=corp-20261126-ux7" />
   <link rel="stylesheet" href="./studio.css?v=corp-20261126-ux3" />
-  <link rel="stylesheet" href="./studio-redesign.css?v=corp-20261126-r2" />
+  <link rel="stylesheet" href="./studio-redesign.css?v=corp-20261126-r3" />
   <link rel="stylesheet" href="./shell.css?v=corp-20261126-ux" />
   <link rel="stylesheet" href="./gallery.css?v=corp-20261126-ux" />
   <link rel="stylesheet" href="./profiles.css?v=corp-20261126-ux" />
@@ -83,13 +83,11 @@
     <!-- Studio -->
     <!-- ============================================================ -->
     <section id="studioPanel" class="tab-panel active" aria-labelledby="studioHeading">
-      <div class="studio-grid">
-        <section class="panel studio-main">
-          <div class="studio-workspace">
-            <div class="studio-controls">
-          <header class="panel-head">
-            <div>
-              <p class="eyebrow">生成</p>
+      <div class="studio-shell">
+        <section class="studio-stage">
+          <header class="stage-head">
+            <div class="stage-title">
+              <span class="stage-kicker">STUDIO</span>
               <h2 id="studioHeading">生成图片</h2>
             </div>
             <div class="active-profile-chip" id="activeProfileChip" data-admin-only hidden>
@@ -99,42 +97,84 @@
             </div>
           </header>
 
+          <div class="stage-canvas">
+            <div id="gallery" class="gallery result-gallery" data-empty="true">
+              <div class="empty-state">
+                <div class="empty-icon" aria-hidden="true">◌</div>
+                <p>还没有生成过图片。<br/>写下你的第一个 prompt，按 <kbd>⌘⏎</kbd> 开始。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="studio-composer">
+            <div class="prompt-workbench" id="promptWorkbench" data-optimized="false">
+              <label class="field prompt-field">
+                <span class="field-row">
+                  <span>提示词 <kbd>⌘⏎</kbd></span>
+                  <span class="hint-right"><span id="promptCount">0</span> 字符</span>
+                </span>
+                <textarea id="prompt" rows="3" placeholder="描述你想生成的图片：主体、风格、构图、光线、画面中的文字……" aria-describedby="promptHint"></textarea>
+              </label>
+              <label class="field prompt-field prompt-optimized-field" id="promptOptimizedField" hidden>
+                <span class="field-row">
+                  <span>优化后提示词</span>
+                  <span class="hint-right"><span id="optimizedPromptCount">0</span> 字符</span>
+                </span>
+                <textarea id="optimizedPrompt" rows="3" placeholder="点击下方“优化提示词”后，这里会生成更适合生图模型的版本。" aria-describedby="promptHint"></textarea>
+              </label>
+            </div>
+
+            <div class="composer-toolbar">
+              <div class="prompt-source-switch" role="group" aria-label="选择生成使用的提示词">
+                <button id="useManualPrompt" class="active" type="button" data-prompt-source="manual" aria-pressed="true">手动输入</button>
+                <button id="useOptimizedPrompt" type="button" data-prompt-source="optimized" aria-pressed="false" disabled>优化后</button>
+              </div>
+              <button id="optimizePrompt" class="ghost composer-optimize" type="button">优化提示词</button>
+              <span class="estimate" id="estimate">预估耗时 —</span>
+              <button id="generate" class="primary composer-generate">
+                <span>生成</span>
+                <kbd class="kbd-inline">⌘⏎</kbd>
+              </button>
+            </div>
+
+            <p class="hint composer-hint" id="promptHint">草稿会自动保存到本地；优化完成后会自动切到优化后提示词。</p>
+            <div id="error" class="error" hidden role="alert"></div>
+            <div class="progress-grid" aria-label="任务状态" hidden>
+              <div id="optimizeProgress" class="progress progress-task" data-task="optimize" hidden aria-live="polite">
+                <strong>提示词优化</strong>
+                <span data-progress-message></span>
+              </div>
+              <div id="generateProgress" class="progress progress-task" data-task="generate" hidden aria-live="polite">
+                <strong>生图</strong>
+                <span data-progress-message></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="studio-settings" aria-label="生成设置">
+          <header class="settings-head">
+            <div>
+              <span class="stage-kicker">SETTINGS</span>
+              <h3>生成设置</h3>
+            </div>
+            <button class="ghost small tab-link" data-tab="configPanel" data-admin-only hidden>接口</button>
+          </header>
+
           <label class="field model-field" data-admin-only hidden>
             <span>模型</span>
             <input id="model" value="gpt-image-2" spellcheck="false" />
           </label>
 
-          <div class="prompt-workbench" id="promptWorkbench" data-optimized="false">
-            <label class="field prompt-field">
-              <span class="field-row">
-                <span>提示词 <kbd>⌘⏎</kbd> 生成</span>
-                <span class="hint-right"><span id="promptCount">0</span> 字符</span>
-              </span>
-              <textarea id="prompt" rows="7"
-                placeholder="描述你想生成的图片：主体、风格、构图、光线、画面中的文字……"
-                aria-describedby="promptHint"></textarea>
-            </label>
-            <label class="field prompt-field prompt-optimized-field" id="promptOptimizedField" hidden>
-              <span class="field-row">
-                <span>优化后提示词</span>
-                <span class="hint-right"><span id="optimizedPromptCount">0</span> 字符</span>
-              </span>
-              <textarea id="optimizedPrompt" rows="7"
-                placeholder="点击下方“优化提示词”后，这里会生成更适合生图模型的版本。"
-                aria-describedby="promptHint"></textarea>
-            </label>
-          </div>
-          <p class="hint" id="promptHint">草稿会自动保存到本地；默认使用手动输入，可用下方左右切换选择生成来源；优化完成后会自动切到优化后提示词。</p>
-
           <section class="reference-panel" aria-labelledby="referenceHeading">
             <div class="reference-head">
               <div>
                 <h3 id="referenceHeading">参考图</h3>
-                <p class="hint">可上传图片，或把生成结果/我的图库图片加入参考图池；有参考图时会自动走图片编辑。</p>
+                <p class="hint">上传图片，或从图库加入参考图。</p>
               </div>
               <div class="reference-actions">
                 <label class="ghost small reference-upload-button">
-                  上传图片
+                  上传
                   <input id="referenceUpload" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden />
                 </label>
                 <button id="clearReferences" class="ghost small" type="button" disabled>清空</button>
@@ -159,45 +199,7 @@
               </label>
             </div>
           </details>
-
-          <div class="action-row">
-            <div class="prompt-source-switch" role="group" aria-label="选择生成使用的提示词">
-              <button id="useManualPrompt" class="active" type="button" data-prompt-source="manual" aria-pressed="true">手动输入提示词</button>
-              <button id="useOptimizedPrompt" type="button" data-prompt-source="optimized" aria-pressed="false" disabled>优化后提示词</button>
-            </div>
-            <button id="optimizePrompt" class="ghost" type="button">优化提示词</button>
-            <button id="generate" class="primary">
-              <span>生成</span>
-              <kbd class="kbd-inline">⌘⏎</kbd>
-            </button>
-            <span class="estimate" id="estimate">预估耗时 —</span>
-          </div>
-
-          <div id="error" class="error" hidden role="alert"></div>
-          <div class="progress-grid" aria-label="任务状态" hidden>
-            <div id="optimizeProgress" class="progress progress-task" data-task="optimize" hidden aria-live="polite">
-              <strong>提示词优化</strong>
-              <span data-progress-message></span>
-            </div>
-            <div id="generateProgress" class="progress progress-task" data-task="generate" hidden aria-live="polite">
-              <strong>生图</strong>
-              <span data-progress-message></span>
-            </div>
-          </div>
-
-            </div>
-
-            <section class="gallery-section studio-results">
-            <h3 class="section-title">结果</h3>
-            <div id="gallery" class="gallery result-gallery" data-empty="true">
-              <div class="empty-state">
-                <div class="empty-icon" aria-hidden="true">▢</div>
-                <p>还没有生成过图片。<br/>写下你的第一个 prompt，按 <kbd>⌘⏎</kbd> 开始。</p>
-              </div>
-            </div>
-          </section>
-          </div>
-        </section>
+        </aside>
       </div>
     </section>
 

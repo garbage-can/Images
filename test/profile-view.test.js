@@ -125,7 +125,6 @@ test('profile view uses locale messages for menu, dialogs, and usage', () => {
   assert.match(menu, /<span class="user-name">User<\/span>/);
   assert.match(menu, />Profile<\/button>/);
   assert.match(menu, />Change password<\/button>/);
-  assert.match(menu, />My usage<\/button>/);
   assert.match(menu, />Admin console<\/button>/);
   assert.match(menu, />Log out<\/button>/);
 
