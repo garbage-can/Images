@@ -8,7 +8,7 @@
   <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./styles.css?v=corp-20261126-ux7" />
   <link rel="stylesheet" href="./studio.css?v=corp-20261126-ux3" />
-  <link rel="stylesheet" href="./studio-redesign.css?v=corp-20261126-r3" />
+  <link rel="stylesheet" href="./studio-redesign.css?v=corp-20261126-r4" />
   <link rel="stylesheet" href="./shell.css?v=corp-20261126-ux" />
   <link rel="stylesheet" href="./gallery.css?v=corp-20261126-ux" />
   <link rel="stylesheet" href="./profiles.css?v=corp-20261126-ux" />
@@ -98,6 +98,12 @@
           </header>
 
           <div class="stage-canvas">
+            <div id="canvasState" class="canvas-state" hidden aria-live="polite">
+              <div class="canvas-orb" aria-hidden="true"><i></i><i></i><i></i></div>
+              <strong id="canvasStateTitle">正在生成</strong>
+              <p id="canvasStateText">模型正在绘制你的画面…</p>
+              <div class="canvas-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            </div>
             <div id="gallery" class="gallery result-gallery" data-empty="true">
               <div class="empty-state">
                 <div class="empty-icon" aria-hidden="true">◌</div>
@@ -1049,6 +1055,6 @@
     </section>
   </aside>
 
-  <script type="module" src="./app.js?v=corp-20261126-ux"></script>
+  <script type="module" src="./app.js?v=corp-20261126-r4"></script>
 </body>
 </html>

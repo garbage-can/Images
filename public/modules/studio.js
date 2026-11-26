@@ -287,11 +287,26 @@ function showConfigError(message) {
   showError('生图服务暂时不可用，请联系管理员检查接口配置。');
 }
 
+function setCanvasState(state, title = '', text = '') {
+  const el = $('canvasState');
+  if (!el) return;
+  el.hidden = !state;
+  el.dataset.state = state || 'idle';
+  if ($('canvasStateTitle')) $('canvasStateTitle').textContent = title || '正在生成';
+  if ($('canvasStateText')) $('canvasStateText').textContent = text || '模型正在绘制你的画面…';
+}
+
 function showTaskProgress(kind, message) {
   const el = kind === 'optimize' ? $('optimizeProgress') : $('generateProgress');
   if (!el) return;
   const grid = el.closest('.progress-grid');
   const messageEl = el.querySelector('[data-progress-message]');
+  if (kind === 'generate') {
+    if (!message) setCanvasState('');
+    else if (String(message).includes('队列')) setCanvasState('queued', '正在排队', message);
+    else if (String(message).includes('提交')) setCanvasState('working', '正在提交', message);
+    else setCanvasState('working', '正在生成', message);
+  }
   if (!message) {
     el.hidden = true;
     if (messageEl) messageEl.textContent = '';
@@ -327,6 +342,7 @@ function renderImages(items, prompt) {
   studioPreviewItems = view.empty ? [] : items;
   studioPreviewPrompt = view.empty ? '' : (prompt || '');
   gallery.dataset.empty = view.empty ? 'true' : 'false';
+  gallery.dataset.single = !view.empty && items.length === 1 ? 'true' : 'false';
   gallery.innerHTML = view.html;
 }
 
