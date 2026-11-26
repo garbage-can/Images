@@ -6,16 +6,16 @@
   <title>图像工作台 · BYOK 在线生图</title>
   <meta name="color-scheme" content="light dark" />
   <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="./styles.css?v=corp-20261123" />
-  <link rel="stylesheet" href="./studio.css?v=corp-20261123" />
-  <link rel="stylesheet" href="./shell.css?v=corp-20261123" />
-  <link rel="stylesheet" href="./gallery.css?v=corp-20261123" />
-  <link rel="stylesheet" href="./profiles.css?v=corp-20261123" />
-  <link rel="stylesheet" href="./prompts.css?v=corp-20261123" />
-  <link rel="stylesheet" href="./logs.css?v=corp-20261123" />
-  <link rel="stylesheet" href="./admin.css?v=corp-20261123d" />
-    <link rel="stylesheet" href="./usage.css?v=corp-20261123b" />
-  <script src="./main-boot.js?v=corp-20261123"></script>
+  <link rel="stylesheet" href="./styles.css?v=corp-20261126-ux2" />
+  <link rel="stylesheet" href="./studio.css?v=corp-20261126-ux" />
+  <link rel="stylesheet" href="./shell.css?v=corp-20261126-ux" />
+  <link rel="stylesheet" href="./gallery.css?v=corp-20261126-ux" />
+  <link rel="stylesheet" href="./profiles.css?v=corp-20261126-ux" />
+  <link rel="stylesheet" href="./prompts.css?v=corp-20261126-ux" />
+  <link rel="stylesheet" href="./logs.css?v=corp-20261126-ux" />
+  <link rel="stylesheet" href="./admin.css?v=corp-20261126-uxd" />
+    <link rel="stylesheet" href="./usage.css?v=corp-20261126-uxb" />
+  <script src="./main-boot.js?v=corp-20261126-ux"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主内容</a>
@@ -24,19 +24,20 @@
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">◆</span>
       <span class="brand-title">图像工作台</span>
-      <span class="brand-sub">BYOK · gpt-image-2</span>
+      <span class="brand-sub">BYOK · 在线生图</span>
     </div>
 
     <nav class="top-menu" aria-label="主导航">
       <button class="tab-button active" data-tab="studioPanel" data-hotkey="gs">生成</button>
       <button class="tab-button" data-tab="promptPanel" data-hotkey="gt">提示词</button>
       <button class="tab-button" data-tab="galleryPanel" data-hotkey="gg">图库</button>
-      <button class="tab-button" data-tab="configPanel" data-hotkey="gp">配置</button>
-      <button class="tab-button" data-tab="logsPanel" data-hotkey="gl">
+      <button class="tab-button" id="usageMenuButton" type="button" data-usage-menu aria-haspopup="dialog">我的用量</button>
+      <button class="tab-button" data-tab="configPanel" data-hotkey="gp" data-admin-only hidden>配置</button>
+      <button class="tab-button" data-tab="logsPanel" data-hotkey="gl" data-admin-only hidden>
         日志 <span id="logErrorBadge" class="menu-badge" hidden>0</span>
       </button>
       <button class="tab-button" data-tab="usersPanel" data-hotkey="gu" data-admin-only hidden>管理</button>
-    <button class="tab-button" data-tab="usagePanel" data-hotkey="gq" data-admin-only hidden>用量</button>
+      <button class="tab-button" data-tab="usagePanel" data-hotkey="gq" data-admin-only hidden>用量看板</button>
     </nav>
 
     <div class="topbar-right">
@@ -82,19 +83,21 @@
     <section id="studioPanel" class="tab-panel active" aria-labelledby="studioHeading">
       <div class="studio-grid">
         <section class="panel studio-main">
+          <div class="studio-workspace">
+            <div class="studio-controls">
           <header class="panel-head">
             <div>
               <p class="eyebrow">生成</p>
               <h2 id="studioHeading">生成图片</h2>
             </div>
-            <div class="active-profile-chip" id="activeProfileChip">
+            <div class="active-profile-chip" id="activeProfileChip" data-admin-only hidden>
               <span class="dot" data-status="unknown"></span>
               <span>当前配置：<strong id="activeConfigName">-</strong></span>
               <button class="ghost small tab-link" data-tab="configPanel">切换</button>
             </div>
           </header>
 
-          <label class="field">
+          <label class="field model-field" data-admin-only hidden>
             <span>模型</span>
             <input id="model" value="gpt-image-2" spellcheck="false" />
           </label>
@@ -183,7 +186,9 @@
             </div>
           </div>
 
-          <section class="gallery-section">
+            </div>
+
+            <section class="gallery-section studio-results">
             <h3 class="section-title">结果</h3>
             <div id="gallery" class="gallery result-gallery" data-empty="true">
               <div class="empty-state">
@@ -192,6 +197,7 @@
               </div>
             </div>
           </section>
+          </div>
         </section>
       </div>
     </section>
@@ -425,7 +431,7 @@
     <!-- ============================================================ -->
     <!-- Profiles -->
     <!-- ============================================================ -->
-    <section id="configPanel" class="tab-panel" aria-labelledby="configHeading">
+    <section id="configPanel" class="tab-panel" data-admin-only hidden aria-labelledby="configHeading">
       <section class="panel config-grid">
         <div class="system-default-panel span-all">
           <div>
@@ -524,7 +530,7 @@
     <!-- ============================================================ -->
     <!-- Logs -->
     <!-- ============================================================ -->
-    <section id="logsPanel" class="tab-panel" aria-labelledby="logsHeading">
+    <section id="logsPanel" class="tab-panel" data-admin-only hidden aria-labelledby="logsHeading">
       <section class="panel logs-panel">
         <header class="panel-head logs-head">
           <div>
@@ -1042,6 +1048,6 @@
     </section>
   </aside>
 
-  <script type="module" src="./app.js?v=corp-20261125b"></script>
+  <script type="module" src="./app.js?v=corp-20261126-ux"></script>
 </body>
 </html>
