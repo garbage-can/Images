@@ -439,52 +439,13 @@ pre,
 }
 body.job-queue-visible .shell.app-layout,
 .shell.app-layout.job-queue-visible {
-  max-width: min(1700px, calc(100vw - 48px));
-  grid-template-columns: 320px minmax(0, 1fr);
+  max-width: 1580px;
+  grid-template-columns: 310px minmax(0, 1fr);
   align-items: stretch;
 }
 
 .workspace-panels {
   min-width: 0;
-}
-
-/* 队列与生成区同一行时，用统一的工作台高度对齐三栏，各栏内部独立滚动。 */
-@media (min-width: 1000px) {
-  body.job-queue-visible .shell.app-layout {
-    height: calc(100dvh - 86px);
-    min-height: 640px;
-  }
-  body.job-queue-visible .job-queue-dock {
-    height: 100%;
-    overflow-y: auto;
-  }
-  body.job-queue-visible .workspace-panels {
-    height: 100%;
-    min-height: 0;
-  }
-  body.job-queue-visible #studioPanel.active {
-    height: 100%;
-    min-height: 0;
-  }
-  body.job-queue-visible #studioPanel .studio-grid {
-    height: 100%;
-    min-height: 0;
-  }
-  body.job-queue-visible #studioPanel .studio-main {
-    height: 100%;
-    min-height: 0;
-    overflow-y: auto;
-  }
-  body.job-queue-visible #studioPanel .studio-workspace {
-    height: 100%;
-    min-height: 0;
-  }
-  body.job-queue-visible #studioPanel .studio-controls,
-  body.job-queue-visible #studioPanel .studio-results {
-    max-height: none;
-    height: 100%;
-    overflow-y: auto;
-  }
 }
 
 .job-queue-dock[hidden],

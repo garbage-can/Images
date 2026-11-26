@@ -3,7 +3,7 @@
 
 import { mountNav } from './modules/nav.js';
 import { mountTheme } from './modules/theme.js';
-import { mountStudioPanel, loadPromptFromLog } from './modules/studio.js?v=corp-20261126-r4';
+import { mountStudioPanel, loadPromptFromLog } from './modules/studio.js?v=corp-20261126-first';
 import { mountPromptPanel } from './modules/prompts.js';
 import { mountProfilesPanel } from './modules/profiles.js';
 import { mountGalleryPanel, refreshGalleryPanel } from './modules/gallery.js';
